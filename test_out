@@ -1,7 +1,32 @@
 ---@diagnostic disable
+
+local SupportedGames = {
+    [6961824067] = 'FTAP.lua',
+    [142823291] = 'MM2.lua'
+}
+
+local function CheckAxelClient()
+    local replicatedStorage = game:GetService("ReplicatedStorage")
+    local axelClient = replicatedStorage:FindFirstChild("AxelMARK")
+    if axelClient and axelClient:IsA("BoolValue") then
+        return true
+    end
+    return false
+end
+
 getgenv().WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 
-getgenv().Window = getgenv().WindUI:CreateWindow({
+if CheckAxelClient() then
+    WindUI:Notify({
+        Title = "You already have the script running.",
+        Content = "Close the previous window permanently to launch a new one.",
+        Duration = 7,
+        Icon = "bell",
+    })
+    return
+end
+
+getgenv().Window = WindUI:CreateWindow({
     Title = "ApexClient",
     Author = "t.me/ApexClientRB",
     Folder = "apexclient",
@@ -130,4 +155,16 @@ WindUI:Notify({
 })
 
 task.wait(3)
-loadstring(game:HttpGet("https://raw.githubusercontent.com/ApexRB/Client/refs/heads/main/test_in"))()
+if SupportedGames[game.PlaceId] then
+    local scriptPath = "https://raw.githubusercontent.com/ApexRB/Client/refs/heads/main/" .. SupportedGames[CurrentGameId]
+    loadstring(game:HttpGet(scriptPath))()
+else
+    Window:Destroy()
+    WindUI:Notify({
+        Title = "The game is not supported by ApexClient.",
+        Content = "GameId:" .. CurrentGameId,
+        Duration = 7,
+        Icon = "bell",
+    })
+    warn("Игра не поддерживается ApexClient. GameId: " .. CurrentGameId)
+end

@@ -1,3 +1,5 @@
+---@diagnostic disable
+
 local SupportedGames = {
     [6961824067] = 'FTAP.lua',
     [142823291] = 'MM2.lua'
@@ -13,6 +15,7 @@ local function CheckAxelClient()
 end
 
 getgenv().WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+scriptWindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 
 if CheckAxelClient() then
     WindUI:Notify({
@@ -158,11 +161,13 @@ if SupportedGames[game.PlaceId] then
     loadstring(game:HttpGet(scriptPath))()
 else
     Window:Destroy()
-    WindUI:Notify({
+
+    scriptWindUI:Notify({
         Title = "The game is not supported by ApexClient.",
-        Content = "GameId:" .. CurrentGameId,
+        Content = "GameId:" .. game.PlaceId,
         Duration = 7,
         Icon = "bell",
     })
-    warn("Игра не поддерживается ApexClient. GameId: " .. CurrentGameId)
+
+    warn("Игра не поддерживается ApexClient. GameId: " .. game.PlaceId)
 end

@@ -1,0 +1,701 @@
+WindUI = getgenv().WindUI
+Window = getgenv().Window
+
+--// MAIN SERVICES //--
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService('RunService')
+local ReplicatedStorage = game:GetService('ReplicatedStorage')
+local Workspace = game:GetService("Workspace")
+local Debris = game:GetService("Debris")
+local UserInputService = game:GetService("UserInputService")
+local CurrentCamera = Workspace.CurrentCamera
+
+--// MAIN THINGS //--
+local ToysFolder = Workspace:FindFirstChild(LocalPlayer.Name.."SpawnedInToys")
+local CharacterEvents = ReplicatedStorage:WaitForChild("CharacterEvents")
+local Struggle = CharacterEvents:WaitForChild("Struggle")
+
+--// MAIN CONNECTIONS //--
+local STRENGTH_CONNECTION
+
+-- // MAIN VARIABLES // --
+local WINDOW
+local WINDOW_ACTIVE = true
+local THROW_STRENGTH = 450
+local THROW = false
+local ANTI_GRAB = false
+local ANTI_FIRE = false
+local ANTI_EXPLODE = false
+local KILL_GRAB = false
+local RADIOACTIVE_GRAB = false
+local POISON_GRAB = false
+local poisonGrabCOROUTINE
+local FIRE_GRAB = false
+local CROUCHWALKSPEED = 16
+local CROUCHWALKSPEED_HACK = false
+local NOCLIP = false
+local FOV = 70
+local FOV_VAL = false
+local PLAYERS_HIGHLIGHTS = false
+local FILL_COLOR_PLAYERS = Color3.fromRGB(255, 255, 255)
+local OUTLINE_COLOR_PLAYERS = Color3.fromRGB(255, 255, 255)
+local VERSION = "v1.0.1"
+
+local MARK = Instance.new('BoolValue', ReplicatedStorage)
+MARK.Name = 'AxelMARK'
+
+-- // ERROR FUNCTION // --
+function Notify(message, description, time)
+	if message then
+		WindUI:Notify({
+			Title = message,
+			Content = description,
+			Duration = time or 3,
+			Icon = "bell",
+		})
+	else
+		WindUI:Notify({
+			Title = "An error occurred",
+			Content = "Please try again later.",
+			Duration = 3,
+			Icon = "bell",
+		})
+	end
+end
+
+-- // MAIN USABLE FUNCTIONS // --
+function getDescendantParts(descendantName)
+	local parts = {}
+	for _, descendant in ipairs(Workspace.Map:GetDescendants()) do
+		if descendant:IsA("Part") and descendant.Name == descendantName then
+			table.insert(parts, descendant)
+		end
+	end
+	return parts
+end
+
+local PoisonHurtParts = getDescendantParts("PoisonHurtPart")
+
+function SpawnItem(itemName, position, orientation)
+	task.spawn(function()
+		local cframe = CFrame.new(position)
+		local rotation = Vector3.new(0, 90, 0)
+		ReplicatedStorage.MenuToys.SpawnToyRemoteFunction:InvokeServer(itemName, cframe, rotation)
+	end)
+end
+
+local function ThrowMod()
+	Workspace.ChildAdded:Connect(function(model)
+		if model.Name == "GrabParts" and THROW then
+			local partToImpulse = model.GrabPart.WeldConstraint.Part1
+			if partToImpulse then
+				local velocityObj = Instance.new("BodyVelocity", partToImpulse)
+				model:GetPropertyChangedSignal("Parent"):Connect(function()
+					if not model.Parent then
+						if UserInputService:GetLastInputType() == Enum.UserInputType.MouseButton2 then
+							velocityObj.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+							velocityObj.Velocity = workspace.CurrentCamera.CFrame.LookVector * THROW_STRENGTH
+							print(THROW_STRENGTH, THROW)
+							Debris:AddItem(velocityObj, 1)
+						else
+							velocityObj:Destroy()
+						end
+					end
+				end)
+			end
+		end
+	end)
+end
+
+local function KillGrab()
+    Workspace.ChildAdded:Connect(function(model)
+        if model:IsA("Model") and model.Name == "GrabParts" and KILL_GRAB then
+        	local grabPart = model:FindFirstChild("GrabPart")
+            if grabPart and grabPart:FindFirstChild("WeldConstraint") then
+                local part = grabPart.WeldConstraint.Part1
+                if part and part.Parent and part.Parent ~= LocalPlayer.Character then
+                    local humanoid = part.Parent:FindFirstChildOfClass("Humanoid")
+                    if humanoid then
+                        humanoid.Health = 0
+                    end
+                end
+            end
+        end
+    end)
+end
+
+local function PoisonGrab()
+	while true do
+		local success, err = pcall(function()
+			local child = workspace:FindFirstChild("GrabParts")
+			if child and child.Name == "GrabParts" then
+				local grabPart = child:FindFirstChild("GrabPart")
+				local grabbedPart = grabPart:FindFirstChild("WeldConstraint").Part1
+				local head = grabbedPart.Parent:FindFirstChild("Head")
+				if head then
+					while workspace:FindFirstChild("GrabParts") do
+						local partsTable = PoisonHurtParts
+						for _, part in pairs(partsTable) do
+							part.Size = Vector3.new(5, 5, 5)
+							part.Transparency = 1
+							part.Position = head.Position
+						end
+						wait()
+						for _, part in pairs(partsTable) do
+							part.Position = Vector3.new(0, -200, 0)
+						end
+					end
+					for _, part in pairs(partsTable) do
+						part.Position = Vector3.new(0, -200, 0)
+					end
+				end
+			end
+		end)
+		wait()
+	end
+end
+
+local function FireGrab()
+	local model = workspace:FindFirstChild("GrabParts")
+	if model:IsA("Model") and model.Name == "GrabParts" and FIRE_GRAB then
+		local grabPart = model:FindFirstChild("GrabPart")
+		local grabbedPart = grabPart:FindFirstChild("WeldConstraint").Part1
+		local head = grabbedPart.Parent:FindFirstChild("Head")
+		if head then
+			if not ToysFolder:FindFirstChild("Campfire") then
+				SpawnItem("Campfire", Vector3.new(-72.9304581, -5.96906614, -265.543732))
+			end
+			local campfire = ToysFolder:FindFirstChild("Campfire")
+			local burnPart = campfire:FindFirstChild("FirePlayerPart") or campfire.FirePlayerPart
+			burnPart.Size = Vector3.new(7, 7, 7)
+			burnPart.CFrame = head.CFrame * CFrame.new(0, -2, 0)
+			task.wait(0.3)
+			burnPart.Position = Vector3.new(0, -50, 0)
+		end
+	end
+end
+
+local function AntiGrab()
+	local player = game.Players.LocalPlayer
+	if player and ANTI_GRAB then
+		local character = game.Players.LocalPlayer.Character
+		if character and character:FindFirstChild("Head") then
+			local head = character.Head
+			local partOwner = head:FindFirstChild("PartOwner")
+			if partOwner then
+				Struggle:FireServer()
+				ReplicatedStorage.GameCorrectionEvents.StopAllVelocity:FireServer()
+				for _, part in pairs(character:GetChildren()) do
+					if part:IsA("BasePart") then
+						part.Anchored = true
+					end
+				end
+				while player.IsHeld.Value do
+					wait()
+				end
+				for _, part in pairs(character:GetChildren()) do
+					if part:IsA("BasePart") then
+						part.Anchored = false
+					end
+				end
+			end
+		end
+	end
+end
+
+local function AntiFire()
+   if ANTI_FIRE then
+	 	local humanoidRootPart = (LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()):WaitForChild("HumanoidRootPart")
+		local fireLight = humanoidRootPart:FindFirstChild("FireLight")
+		local fireParticleEmitter = humanoidRootPart:FindFirstChild("FireParticleEmitter")
+		if fireLight or fireParticleEmitter then
+			Workspace.Map.Hole.PoisonBigHole.ExtinguishPart.CFrame = CFrame.new(humanoidRootPart.Position)
+			while fireLight or fireParticleEmitter do
+				task.wait(0.1)
+				fireLight = humanoidRootPart:FindFirstChild("FireLight")
+				fireParticleEmitter = humanoidRootPart:FindFirstChild("FireParticleEmitter")
+				Workspace.Map.Hole.PoisonBigHole.ExtinguishPart.Transparency = 1
+				Workspace.Map.Hole.PoisonBigHole.ExtinguishPart.Size = Vector3.new(5, 5, 15)
+				Workspace.Map.Hole.PoisonBigHole.ExtinguishPart.CFrame = CFrame.new(humanoidRootPart.Position)
+			end
+			Workspace.Map.Hole.PoisonBigHole.ExtinguishPart.CFrame = CFrame.new(0, 5, 0)
+		end
+   end
+end
+
+local function AntiExplode()
+    Workspace.ChildAdded:Connect(function(model)
+        if model:IsA("Part") and model.Name == "Part" and ANTI_EXPLODE then
+            local Character = LocalPlayer.Character
+            if Character then
+                local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
+                local RightArm = Character:FindFirstChild("Right Arm")
+                if HumanoidRootPart and RightArm and (model.Position - HumanoidRootPart.Position).Magnitude <= 20 then
+                    HumanoidRootPart.Anchored = true
+                    task.wait(0.01)
+                    while RightArm:FindFirstChild("RagdollLimbPart") and RightArm.RagdollLimbPart.CanCollide == true do
+                        task.wait(0.001)
+                    end
+                    HumanoidRootPart.Anchored = false
+                end
+            end
+        end
+    end)
+end
+
+local function CrouchWalkSpeed(speed)
+	if CROUCHWALKSPEED_HACK then
+		if LocalPlayer.Character.Humanoid.HipHeight < 0 then
+			LocalPlayer.Character.Humanoid.WalkSpeed = speed
+		end
+	end
+end
+
+local function Noclip()
+	if NOCLIP then
+		local character = LocalPlayer.Character
+		if character then
+			for _, part in pairs(character:GetChildren()) do
+				if part:IsA('BasePart') then
+					part.CanCollide = false
+				end
+			end
+		end
+	end
+end
+
+local function HighlightPlayers(delete)
+	if not delete then
+		if PLAYERS_HIGHLIGHTS then
+			for _, plr in pairs(Players:GetChildren()) do
+				local character = plr.Character
+				if character then
+					local highlight
+					if character:FindFirstChildOfClass('Highlight') then
+						highlight = character:FindFirstChildOfClass('Highlight')
+					else
+						highlight = Instance.new('Highlight', character)
+					end
+					highlight.FillColor = FILL_COLOR_PLAYERS
+					highlight.OutlineColor = OUTLINE_COLOR_PLAYERS
+				end
+			end
+		end
+	else
+		for _, plr in pairs(Players:GetChildren()) do
+			local character = plr.Character
+			if character then
+				if character:FindFirstChildOfClass('Highlight') then
+					character:FindFirstChildOfClass('Highlight'):Destroy()
+				end
+			end
+		end
+	end
+end
+
+Window:OnDestroy(function()
+	if MARK then
+		MARK:Destroy()
+	end
+	WINDOW_ACTIVE = true
+	THROW = false
+ 	ANTI_GRAB = false
+	ANTI_EXPLODE = false
+	KILL_GRAB = false
+	FIRE_GRAB = false
+	CROUCHWALKSPEED = 16
+	CROUCHWALKSPEED_HACK = false
+	NOCLIP = false
+	FOV = 70
+	FOV_VAL = false
+	PLAYERS_HIGHLIGHTS = false
+	HighlightPlayers(true)
+end)
+
+Window:Tag({
+	Title = VERSION,
+	Color = Color3.fromHex("#e5930a"),
+	Radius = 13, -- from 0 to 13
+})
+
+-- // COMBAT TAB // --
+do
+	local CombatTab = Window:Tab({
+		Title = "Combat",
+		Icon = "hand-fist", -- optional
+		Locked = false,
+	})
+
+	local Section = CombatTab:Section({ 
+        Title = "Throw Mod",
+        Box = false,
+        Icon = "wrench",
+        TextTransparency = 0.05,
+        TextXAlignment = "Left",
+        Opened = true,
+    })
+
+	local Slider = CombatTab:Slider({
+		Title = "Throw Strength",
+		Step = 10,
+		Value = {
+			Min = 450,
+			Max = 7500,
+			Default = 450,
+		},
+		Callback = function(value)
+			THROW_STRENGTH = value
+		end
+	})
+
+	local Toggle = CombatTab:Toggle({
+		Title = "Enable Throw Strength" ,
+		Type = "Toggle",
+		Value = false,
+		Callback = function(state) 
+			THROW = state
+			if THROW then
+				task.spawn(ThrowMod)
+			end
+		end
+	})
+
+	local Section = CombatTab:Section({ 
+        Title = "Grab Stuff",
+        Box = false,
+        Icon = "hand-grab",
+        TextTransparency = 0.05,
+        TextXAlignment = "Left",
+        Opened = true,
+    })
+
+	local Toggle = CombatTab:Toggle({
+		Title = "Kill-Grab",
+		Type = "Toggle",
+		Value = false,
+		Callback = function(state) 
+			KILL_GRAB = state
+			KillGrab()
+		end
+	})
+
+	local Toggle = CombatTab:Toggle({
+		Title = "Poison-Grab",
+		Type = "Toggle",
+		Value = false,
+		Callback = function(state) 
+			POISON_GRAB = state
+			if POISON_GRAB then
+				poisonGrabCOROUTINE = coroutine.create(function() PoisonGrab() end)
+				coroutine.resume(poisonGrabCOROUTINE)
+			else
+				if poisonGrabCOROUTINE then
+					coroutine.close(poisonGrabCOROUTINE)
+					poisonGrabCOROUTINE = nil
+					for _, part in pairs(PoisonHurtParts) do
+						part.Position = Vector3.new(0, -200, 0)
+					end
+				end
+			end
+		end
+	})
+
+	local Toggle = CombatTab:Toggle({
+		Title = "Fire-Grab",
+		Type = "Toggle",
+		Value = false,
+		Callback = function(state) 
+			FIRE_GRAB = state
+			if FIRE_GRAB then
+				FIREGRAB_RUN = RunService.Heartbeat:Connect(function()
+					FireGrab()
+				end)
+			else
+				FIREGRAB_RUN:Disconnect()
+			end
+		end
+	})
+end
+
+-- // PROTECTION TAB // --
+do
+	local ProtectionTab = Window:Tab({
+		Title = "Protection",
+		Icon = "shield", -- optional
+		Locked = false,
+	})
+
+	local Section = ProtectionTab:Section({ 
+        Title = "Anti Modules",
+        Box = false,
+        Icon = "shield",
+        TextTransparency = 0.05,
+        TextXAlignment = "Left",
+        Opened = true,
+    })
+	
+	local Toggle = ProtectionTab:Toggle({
+		Title = "Anti-Grab",
+		Type = "Toggle",
+		Value = false,
+		Callback = function(state) 
+			ANTI_GRAB = state
+			if ANTI_GRAB then
+				ANTIGRAB_RUN = RunService.Heartbeat:Connect(function()
+					AntiGrab()
+				end)
+			else
+				ANTIGRAB_RUN:Disconnect()
+			end
+		end
+	})
+
+	local Toggle = ProtectionTab:Toggle({
+		Title = "Anti-Fire",
+		Type = "Toggle",
+		Value = false,
+		Callback = function(state) 
+			ANTI_FIRE = state
+			if ANTI_FIRE then
+				ANTIFIRE_RUN = RunService.Heartbeat:Connect(function()
+					AntiFire()
+				end)
+			else
+				ANTIFIRE_RUN:Disconnect()
+			end
+		end
+	})
+
+	local Toggle = ProtectionTab:Toggle({
+		Title = "Anti-Explode",
+		Type = "Toggle",
+		Value = false,
+		Callback = function(state) 
+			ANTI_EXPLODE = state
+			if ANTI_EXPLODE then
+				task.spawn(AntiExplode)
+			end
+		end
+	})
+
+	local Section = ProtectionTab:Section({ 
+        Title = "Destroy Things",
+        Box = false,
+        Icon = "trash",
+        TextTransparency = 0.05,
+        TextXAlignment = "Left",
+        Opened = true,
+    })
+
+	local Button = ProtectionTab:Button({
+		Title = "Destroy Void",
+		Locked = true,
+		Callback = function() end
+	})
+end
+
+-- // PLAYER TAB // --
+do
+	local PlayerTab = Window:Tab({
+		Title = "Player",
+		Icon = "user", -- optional
+		Locked = false,
+	})
+
+	local Section = PlayerTab:Section({ 
+        Title = "Movement",
+        Box = false,
+        Icon = "sliders-horizontal",
+        TextTransparency = 0.05,
+        TextXAlignment = "Left",
+        Opened = true,
+    })
+
+	local Slider = PlayerTab:Slider({
+		Title = "Crouch WalkSpeed",
+		Step = 1,
+		Value = {
+			Min = 16,
+			Max = 270,
+			Default = 16,
+		},
+		Callback = function(value)
+			CROUCHWALKSPEED = value
+		end
+	})
+
+	local Toggle = PlayerTab:Toggle({
+		Title = "Crouch WalkSpeed Hack" ,
+		Type = "Toggle",
+		Value = false,
+		Callback = function(state) 
+			CROUCHWALKSPEED_HACK = state
+			if CROUCHWALKSPEED_HACK then
+				CROUCHWALKSPEED_RUN = RunService.Heartbeat:Connect(function()
+					CrouchWalkSpeed(CROUCHWALKSPEED)
+				end)
+			else
+				CROUCHWALKSPEED_RUN:Disconnect()
+			end
+		end
+	})
+
+	local Toggle = PlayerTab:Toggle({
+		Title = "Noclip" ,
+		Type = "Toggle",
+		Value = false,
+		Callback = function(state) 
+			NOCLIP = state
+			if NOCLIP then
+				NOCLIP_RUN = RunService.Heartbeat:Connect(function()
+					Noclip()
+				end)
+			else
+				NOCLIP_RUN:Disconnect()
+				local character = LocalPlayer.Character
+				if character then
+					character:WaitForChild('Head').CanCollide = true
+					character:WaitForChild('Torso').CanCollide = true
+				end
+			end
+		end
+	})
+
+	 local Section = PlayerTab:Section({ 
+        Title = "Camera",
+        Box = false,
+        Icon = "camera",
+        TextTransparency = 0.05,
+        TextXAlignment = "Left",
+        Opened = true,
+    })
+
+	local Slider = PlayerTab:Slider({
+		Title = "FOV",
+		Step = 1,
+		Value = {
+			Min = 50,
+			Max = 120,
+			Default = 70,
+		},
+		Callback = function(value)
+			FOV = value
+		end
+	})
+
+	local Toggle = PlayerTab:Toggle({
+		Title = "Enable FOV" ,
+		Type = "Toggle",
+		Value = false,
+		Callback = function(state) 
+			FOV_VAL = state
+			if FOV_VAL then
+				FOV_RUN = RunService.Heartbeat:Connect(function()
+					CurrentCamera.FieldOfView = FOV
+				end)
+			else
+				FOV_RUN:Disconnect()
+				CurrentCamera.FieldOfView = 70
+			end
+		end
+	})
+end
+
+-- // VISUALS TAB // --
+do
+	local VisualsTab = Window:Tab({
+		Title = "Visuals",
+		Icon = "eye", -- optional
+		Locked = false,
+	})
+
+	local Section = VisualsTab:Section({ 
+        Title = "Highlights",
+        Box = false,
+        Icon = "wand-sparkles",
+        TextTransparency = 0.05,
+        TextXAlignment = "Left",
+        Opened = true,
+    })
+
+	local Warning
+	Warning = VisualsTab:Paragraph({
+		Title = "Important!",
+		Desc = "Colorpickers may not work in the Roblox Menu (ESC), unlock the mouse with E keybind",
+		Color = "Orange",
+		Locked = false,
+	})
+
+	local Toggle = VisualsTab:Toggle({
+		Title = "Players" ,
+		Type = "Toggle",
+		Value = false,
+		Callback = function(state) 
+			PLAYERS_HIGHLIGHTS = state
+			if PLAYERS_HIGHLIGHTS then
+				PLAYERS_RUN = RunService.Heartbeat:Connect(function()
+					HighlightPlayers()
+				end)
+			else
+				PLAYERS_RUN:Disconnect()
+				HighlightPlayers(true)
+			end
+		end
+	})
+
+	local Colorpicker = VisualsTab:Colorpicker({
+        Flag = "ColorpickerTest",
+        Title = "Fill Color",
+        Desc = "Colorpicker Description",
+        Default = Color3.fromRGB(255, 255, 255),
+        Transparency = 0,
+        Locked = false,
+        Callback = function(color) 
+            FILL_COLOR_PLAYERS = color
+        end
+    })
+
+	local Colorpicker = VisualsTab:Colorpicker({
+		Flag = "ColorpickerTest2",
+		Title = "Outline Color",
+		Default = Color3.fromRGB(255, 255, 255),
+		Transparency = 0,
+		Locked = false,
+		Callback = function(color) 
+			OUTLINE_COLOR_PLAYERS = color
+		end
+	})
+end
+
+Window:Divider()
+
+-- // SETTINGS TAB // --
+do
+	local CreditsTab = Window:Tab({
+		Title = "Credits",
+		Icon = "heart", -- optional
+		Locked = false,
+	})
+
+	local Section = CreditsTab:Section({ 
+        Title = "Credits",
+        Box = false,
+        Icon = "heart",
+        TextTransparency = 0.05,
+        TextXAlignment = "Left",
+        Opened = true,
+    })
+
+	local Paragraph = CreditsTab:Paragraph({
+		Title = "Sadlunov - dev"
+	})
+
+	local Paragraph = CreditsTab:Paragraph({
+		Title = "WindUI - main library"
+	})
+
+	local Paragraph = CreditsTab:Paragraph({
+		Title = "Infinite Yield"
+	})
+end

@@ -1,5 +1,6 @@
 WindUI = getgenv().WindUI
 Window = getgenv().Window
+print('downloaded window and windui, naoborot')
 
 -- // INFO TAB // --
 do

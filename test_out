@@ -61,9 +61,6 @@ WindUI:AddTheme({
     
 })
 
-getgenv().Window:ToggleTransparency(false)
-getgenv().Window:SetTheme("Aurora")
-
 -- // INFO TAB // --
 do
 	local InfoTab = Window:Tab({

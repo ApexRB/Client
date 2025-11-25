@@ -1,0 +1,59 @@
+WindUI = getgenv().WindUI
+Window = getgenv().WindUI
+
+-- // INFO TAB // --
+do
+	local InfoTab = Window:Tab({
+        Title = "Information",
+        Icon = "info"
+    })
+
+    local Section = InfoTab:Section({ 
+        Title = "Main",
+        Box = false,
+        Icon = "tool-case",
+        TextTransparency = 0.05,
+        TextXAlignment = "Left",
+        Opened = true,
+    })
+
+    local Paragraph = InfoTab:Paragraph({
+        Title = "Welcome to ApexClient!",
+    })
+
+    local Paragraph = InfoTab:Paragraph({
+        Title = "Make sure to join our telegram channel for updates!",
+    })
+    
+    local Keybind = InfoTab:Keybind({
+        Title = "ApexClient Keybind",
+        Desc = "Keybind to open UI",
+        Value = "G",
+        Callback = function(v)
+            Window:SetToggleKey(Enum.KeyCode[v])
+        end
+    })
+
+    local Button = InfoTab:Button({
+        Title = "Join Telegram Channel",
+        Callback = function()
+           setclipboard("t.me/sadlunovSCRIPTS")
+        end
+    })
+
+    local Section = InfoTab:Section({ 
+        Title = "Other",
+        Box = false,
+        Icon = "brush-cleaning",
+        TextTransparency = 0.05,
+        TextXAlignment = "Left",
+        Opened = true,
+    })
+
+    local Button = InfoTab:Button({
+        Title = "Unload",
+        Callback = function()
+           Window:Destroy()
+        end
+    })
+end

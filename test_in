@@ -700,6 +700,3 @@ do
 		Title = "Infinite Yield"
 	})
 end
-
-Window:ToggleTransparency(false)
-Window:SetTheme("Aurora")

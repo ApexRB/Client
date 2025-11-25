@@ -61,6 +61,9 @@ WindUI:AddTheme({
     
 })
 
+Window:ToggleTransparency(false)
+WindUI:SetTheme("Aurora")
+
 -- // INFO TAB // --
 do
 	local InfoTab = Window:Tab({
@@ -119,12 +122,12 @@ do
     })
 end
 
-
 WindUI:Notify({
-    Title = "Please wait, loading script...",
-    Content = "Approximate time to the minute!",
-    Duration = 8,
+    Title = "Please wait, loading game functions...",
+    Content = ":3",
+    Duration = 5,
     Icon = "bell",
 })
 
+task.wait(3)
 loadstring(game:HttpGet("https://raw.githubusercontent.com/ApexRB/Client/refs/heads/main/test_in"))()

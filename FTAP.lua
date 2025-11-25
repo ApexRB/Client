@@ -158,7 +158,7 @@ end
 
 local function FireGrab()
 	local model = workspace:FindFirstChild("GrabParts")
-	if model:IsA("Model") and model.Name == "GrabParts" and FIRE_GRAB then
+	if model and model:IsA("Model") and model.Name == "GrabParts" and FIRE_GRAB then
 		local grabPart = model:FindFirstChild("GrabPart")
 		local grabbedPart = grabPart:FindFirstChild("WeldConstraint").Part1
 		local head = grabbedPart.Parent:FindFirstChild("Head")

@@ -154,7 +154,7 @@ WindUI:Notify({
 
 task.wait(3)
 if SupportedGames[game.PlaceId] then
-    local scriptPath = "https://raw.githubusercontent.com/ApexRB/Client/refs/heads/main/" .. SupportedGames[CurrentGameId]
+    local scriptPath = "https://raw.githubusercontent.com/ApexRB/Client/refs/heads/main/" .. SupportedGames[game.PlaceId]
     loadstring(game:HttpGet(scriptPath))()
 else
     Window:Destroy()

@@ -158,7 +158,8 @@ end
 
 local function FireGrab()
 	local model = workspace:FindFirstChild("GrabParts")
-	if model and model:IsA("Model") and model.Name == "GrabParts" and FIRE_GRAB then
+    if model then
+        if model:IsA("Model") and model.Name == "GrabParts" and FIRE_GRAB then
 		local grabPart = model:FindFirstChild("GrabPart")
 		local grabbedPart = grabPart:FindFirstChild("WeldConstraint").Part1
 		local head = grabbedPart.Parent:FindFirstChild("Head")
@@ -174,6 +175,7 @@ local function FireGrab()
 			burnPart.Position = Vector3.new(0, -50, 0)
 		end
 	end
+    end
 end
 
 local function AntiGrab()
@@ -699,3 +701,5 @@ do
 		Title = "Infinite Yield"
 	})
 end
+
+Notify('Successful hub loading!', 'GameID: ' .. game.PlaceId, 5)

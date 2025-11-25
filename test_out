@@ -1,5 +1,3 @@
----@diagnostic disable
-
 local SupportedGames = {
     [6961824067] = 'FTAP.lua',
     [142823291] = 'MM2.lua'

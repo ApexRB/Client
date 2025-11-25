@@ -1,0 +1,65 @@
+---@diagnostic disable
+getgenv().WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+WindUI = getgenv().WindUI
+
+getgenv().Window = WindUI:CreateWindow({
+    Title = "ApexClient",
+    Author = "t.me/ApexClientRB",
+    Folder = "apexclient",
+    Icon = "container",
+    NewElements = true,
+    HideSearchBar = false,
+	User = {
+		Enabled = true,
+		Anonymous = false,
+		Callback = function() end,
+	},
+})
+
+WindUI:AddTheme({
+    Name = "Aurora",
+    
+    Accent = Color3.fromHex("#FFFFFF"),
+    Background = Color3.fromHex("#9a5708"),
+    BackgroundTransparency = 0,
+    Outline = Color3.fromHex("#FFFFFF"),
+    Text = Color3.fromHex("#FFFFFF"),
+    Placeholder = Color3.fromHex("#FFFFFF"),
+    Button = Color3.fromHex("#d97706"),
+    Icon = Color3.fromHex("#e5930a"),
+    
+    Hover = Color3.fromHex("#FFFFFF"), -- Text
+    BackgroundTransparency = 0,
+    
+    WindowBackground = Color3.fromHex("#1c1003"),
+    WindowShadow = Color3.fromHex("#000000"),
+    
+    DialogBackground = Color3.fromHex("#1c1003"), -- Background
+    DialogBackgroundTransparency = 0, -- BackgroundTransparency
+    DialogTitle = Color3.fromHex("#FFFFFF"), -- Text
+    DialogContent = Color3.fromHex("#FFFFFF"), -- Text
+    DialogIcon = Color3.fromHex("#a1a1aa"), -- Icon
+    
+    WindowTopbarButtonIcon = Color3.fromHex("#d39f02"), -- Icon
+    WindowTopbarTitle = Color3.fromHex("#FFFFFF"), -- Text
+    WindowTopbarAuthor = Color3.fromHex("#FFFFFF"), -- Text
+    WindowTopbarIcon = Color3.fromHex("#e5930a"), -- Text
+    
+    TabBackground = Color3.fromHex("#FFFFFF"), -- Text
+    TabTitle = Color3.fromHex("#FFFFFF"), -- Text
+    TabIcon = Color3.fromHex("#e5930a"), -- Icon
+    
+    ElementBackground = Color3.fromHex("#FFFFFF"), -- Text
+    ElementTitle = Color3.fromHex("#FFFFFF"), -- Text
+    ElementDesc = Color3.fromHex("#FFFFFF"), -- Text
+    ElementIcon = Color3.fromHex("#FFFFFF"), -- Icon
+    
+    PopupBackground = Color3.fromHex("#1c1003"), -- Background
+    PopupBackgroundTransparency = 0, -- BackgroundTransparency
+    PopupTitle = Color3.fromHex("#FFFFFF"), -- Text
+    PopupContent = Color3.fromHex("#FFFFFF"), -- Text
+    PopupIcon = Color3.fromHex("#FFFFFF"), -- Icon
+    
+})
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ApexRB/Client/refs/heads/main/test_in"))()

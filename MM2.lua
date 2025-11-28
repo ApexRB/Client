@@ -179,7 +179,8 @@ do
             Default = 15,
         },
         Callback = function(value)
-            KILL_AURA_DISTANCE = value
+            print(value)
+            KILL_AURA_DISTANCE = tonumber(value)
         end
     })
 

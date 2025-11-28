@@ -75,7 +75,6 @@ local function KillAll()
     local character = LocalPlayer.Character
     for _, plr in pairs(game.Players:GetPlayers()) do
 		if character then
-            print('clciked')
 			if not character:FindFirstChild('Knife') then
                 character.Backpack:FindFirstChild('Knife').Parent = character
             end
@@ -83,12 +82,12 @@ local function KillAll()
             local handle = knife:FindFirstChild('Handle')
             local plrRoot = plr.Character:FindFirstChild('HumanoidRootPart')
             if knife and handle and character and plr.Character and plrRoot then
-                knife:Activate()
+                knife:FindFirstChild("Stab"):FireServer("Slash")
                 firetouchinterest(handle, plrRoot, 0)
                 task.wait()
                 firetouchinterest(handle, plrRoot, 1)
-                print('end touch')
             end
+            task.wait(.02)
 		end
 	end
 end

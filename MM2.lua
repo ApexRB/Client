@@ -92,6 +92,7 @@ local function KillPlayer(target)
         local handle = knife:FindFirstChild('Handle')
         local plrRoot = target:FindFirstChild('HumanoidRootPart')
         local rightHandGrip = character:FindFirstChild('RightHand'):FindFirstChild('RightGrip')
+        local pos = handle.Position
         if rightHandGrip then
             rightHandGrip.Enabled = false
         end
@@ -100,6 +101,10 @@ local function KillPlayer(target)
             firetouchinterest(handle, plrRoot, 0)
             task.wait()
             firetouchinterest(handle, plrRoot, 1)
+        end
+        if rightHandGrip then
+            handle.Position = pos
+            rightHandGrip.Enabled = false
         end
 	end
 end

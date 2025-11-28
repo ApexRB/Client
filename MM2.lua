@@ -110,7 +110,8 @@ local function KillAll()
     local character = LocalPlayer.Character
     for _, plr in pairs(game.Players:GetPlayers()) do
 		if character then
-			if plr then
+			if plr.Name == LocalPlayer.Name then
+            else
                 if plr.Character then
                     KillPlayer(plr.Character)
                 end

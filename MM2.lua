@@ -75,6 +75,7 @@ local function KillAll()
     local character = LocalPlayer.Character
     for _, plr in pairs(game.Players:GetPlayers()) do
 		if character then
+            print('clciked')
 			if not character:FindFirstChild('Knife') then
                 character.Backpack:FindFirstChild('Knife').Parent = character
             end
@@ -86,6 +87,7 @@ local function KillAll()
                 firetouchinterest(handle, plrRoot, 0)
                 task.wait()
                 firetouchinterest(handle, plrRoot, 1)
+                print('end touch')
             end
 		end
 	end

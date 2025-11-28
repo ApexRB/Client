@@ -107,10 +107,12 @@ local function KillAll()
     local character = LocalPlayer.Character
     for _, plr in pairs(game.Players:GetPlayers()) do
 		if character then
-			if plr.Character then
-                KillPlayer(plr.Character)
+			if plr then
+                if plr.Character then
+                    KillPlayer(plr.Character)
+                end
+                task.wait(.02)
             end
-            task.wait(.02)
 		end
 	end
 end
@@ -122,16 +124,18 @@ local function KillAura()
         for _, plr in pairs(game.Players:GetPlayers()) do
             if plr.Name == LocalPlayer.Name then
             else
-                local plrCharacter = plr.Character
-                if plrCharacter then
-                    local plrRoot = plrCharacter:FindFirstChild('HumanoidRootPart')
-                    if plrRoot then
-                        local magnitude = (root.Position - plrRoot.Position).magnitude
-                        if magnitude < KILL_AURA_DISTANCE then
-                            KillPlayer(plrCharacter)
+               if plr then
+                    local plrCharacter = plr.Character
+                    if plrCharacter then
+                        local plrRoot = plrCharacter:FindFirstChild('HumanoidRootPart')
+                        if plrRoot then
+                            local magnitude = (root.Position - plrRoot.Position).magnitude
+                            if magnitude < tonumber(KILL_AURA_DISTANCE) then
+                                KillPlayer(plrCharacter)
+                            end
                         end
                     end
-                end
+               end
             end
         end
     end

@@ -92,7 +92,7 @@ local function KillPlayer(target)
         local knife = character:FindFirstChild('Knife')
         local handle = knife:FindFirstChild('Handle')
         local plrRoot = target:FindFirstChild('HumanoidRootPart')
-        if knife and handle and character and plr.Character and plrRoot then
+        if knife and handle and character and plrRoot then
             knife:FindFirstChild("Stab"):FireServer("Slash")
             firetouchinterest(handle, plrRoot, 0)
             task.wait()

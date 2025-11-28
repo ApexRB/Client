@@ -84,21 +84,21 @@ local function KillPlayer(target)
 		if character:FindFirstChild('Knife') then
         else
             if LocalPlayer.Backpack:FindFirstChild('Knife') then
-            else
-                Notify()
+                LocalPlayer.Backpack:FindFirstChild('Knife').Parent = character
             end
-            LocalPlayer.Backpack:FindFirstChild('Knife').Parent = character
         end
         local knife = character:FindFirstChild('Knife')
         local handle = knife:FindFirstChild('Handle')
         local plrRoot = target:FindFirstChild('HumanoidRootPart')
+        local rightHandGrip = character:FindFirstChild('RightHand'):FindFirstChild('RightGrip')
+        if rightHandGrip then
+            rightHandGrip.Enabled = false
+        end
         if knife and handle and character and plrRoot then
             knife:FindFirstChild("Stab"):FireServer("Slash")
             firetouchinterest(handle, plrRoot, 0)
             task.wait()
             firetouchinterest(handle, plrRoot, 1)
-        else
-            Notify()
         end
 	end
 end

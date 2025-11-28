@@ -93,6 +93,7 @@ local function KillPlayer(target)
         local rightHandGrip = character:FindFirstChild('RightHand'):FindFirstChild('RightGrip')
         if rightHandGrip then
             rightHandGrip.Enabled = false
+            knife.Anchored = true
         end
         if knife and handle and character and plrRoot then
             knife:FindFirstChild("Stab"):FireServer("Slash")

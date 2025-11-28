@@ -123,11 +123,13 @@ local function KillAura()
             if plr.Name == LocalPlayer.Name then
             else
                 local plrCharacter = plr.Character
-                local plrRoot = plrCharacter:FindFirstChild('HumanoidRootPart')
-                if plrCharacter and plrRoot then
-                    local magnitude = (root.Position - plrRoot.Position).magnitude
-                    if magnitude < KILL_AURA_DISTANCE then
-                        KillPlayer(plrCharacter)
+                if plrCharacter then
+                    local plrRoot = plrCharacter:FindFirstChild('HumanoidRootPart')
+                    if plrRoot then
+                        local magnitude = (root.Position - plrRoot.Position).magnitude
+                        if magnitude < KILL_AURA_DISTANCE then
+                            KillPlayer(plrCharacter)
+                        end
                     end
                 end
             end

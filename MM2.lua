@@ -15,7 +15,8 @@ local VirtualInput = game:GetService("VirtualInputManager")
 local CurrentCamera = Workspace.CurrentCamera
 
 --// MAIN THINGS //--
---nil
+local KILL_AURA_DISTANCE = 15
+local KILL_AURA = false
 
 local MARK = Instance.new('BoolValue', ReplicatedStorage)
 MARK.Name = 'AxelMARK'
@@ -53,6 +54,12 @@ function FindMap()
     return map
 end
 
+function LeftClick()
+	VirtualInput:SendMouseButtonEvent(0, 0, 0, true, game, 1)
+	task.wait()
+	VirtualInput:SendMouseButtonEvent(0, 0, 0, false, game, 1)
+end
+
 function Noclip(status, children)
     if children and status then
         if status == true then
@@ -71,26 +78,67 @@ function Noclip(status, children)
     end
 end
 
+local function KillPlayer(target)
+    local character = LocalPlayer.Character
+	if character then
+		if character:FindFirstChild('Knife') then
+        else
+            character.Backpack:FindFirstChild('Knife').Parent = character
+            if character.Backpack:FindFirstChild('Knife') then
+            else
+                error()
+            end
+        end
+        local knife = character:FindFirstChild('Knife')
+        local handle = knife:FindFirstChild('Handle')
+        local plrRoot = target:FindFirstChild('HumanoidRootPart')
+        if knife and handle and character and plr.Character and plrRoot then
+            knife:FindFirstChild("Stab"):FireServer("Slash")
+            firetouchinterest(handle, plrRoot, 0)
+            task.wait()
+            firetouchinterest(handle, plrRoot, 1)
+        else
+            error()
+        end
+	end
+end
+
 local function KillAll()
     local character = LocalPlayer.Character
     for _, plr in pairs(game.Players:GetPlayers()) do
 		if character then
-			if not character:FindFirstChild('Knife') then
-                character.Backpack:FindFirstChild('Knife').Parent = character
-            end
-            local knife = character:FindFirstChild('Knife')
-            local handle = knife:FindFirstChild('Handle')
-            local plrRoot = plr.Character:FindFirstChild('HumanoidRootPart')
-            if knife and handle and character and plr.Character and plrRoot then
-                knife:FindFirstChild("Stab"):FireServer("Slash")
-                firetouchinterest(handle, plrRoot, 0)
-                task.wait()
-                firetouchinterest(handle, plrRoot, 1)
+			if plr.Character then
+                KillPlayer(plr.Character)
             end
             task.wait(.02)
 		end
 	end
 end
+
+local function KillAura()
+    local character = LocalPlayer.Character
+    local root = character:FindFirstChild('HumanoidRootPart')
+    if character and root and KILL_AURA then
+        for _, plr in pairs(game.Players:GetPlayers()) do
+            local plrCharacter = plr.Character
+            local plrRoot = plrCharacter:FindFirstChild('HumanoidRootPart')
+            if plrCharacter and plrRoot then
+                local magnitude = (root.Position - plrRoot.Position).magnitude
+                if magnitude < KILL_AURA_DISTANCE then
+                    KillPlayer(plrCharacter)
+                end
+            end
+        end
+    end
+end
+
+
+Window:OnDestroy(function()
+	if MARK then
+		MARK:Destroy()
+	end
+	KILL_AURA = false
+end)
 
 -- // COMBAT TAB // --
 do
@@ -116,4 +164,68 @@ do
             KillAll()
         end
     })
+
+    local Slider = CombatTab:Slider({
+        Title = "Kill Aura Distance",
+        Step = 1,
+        Value = {
+            Min = 15,
+            Max = 100,
+            Default = 15,
+        },
+        Callback = function(value)
+            KILL_AURA_DISTANCE = value
+        end
+    })
+
+    local Toggle = CombatTab:Toggle({
+        Title = "Kill Aura",
+        Type = "Checkbox",
+        Value = false,
+        Callback = function(state) 
+            KILL_AURA = state
+			if KILL_AURA then
+				KILLAURA_RUN = RunService.Heartbeat:Connect(function()
+					KillAura()
+				end)
+			else
+				KILLAURA_RUN:Disconnect()
+			end
+        end
+    })
+end
+
+-- // VISUALS TAB // --
+do
+	local VisualsTab = Window:Tab({
+		Title = "Visuals",
+		Icon = "eye",
+		Locked = false,
+	})
+
+	local Section = VisualsTab:Section({ 
+        Title = "Highlights",
+        Box = false,
+        Icon = "wand-sparkles",
+        TextTransparency = 0.05,
+        TextXAlignment = "Left",
+        Opened = true,
+    })
+
+	local Toggle = VisualsTab:Toggle({
+		Title = "Players" ,
+		Type = "Toggle",
+		Value = false,
+		Callback = function(state) 
+			PLAYERS_HIGHLIGHTS = state
+			if PLAYERS_HIGHLIGHTS then
+				PLAYERS_RUN = RunService.Heartbeat:Connect(function()
+					HighlightPlayers()
+				end)
+			else
+				PLAYERS_RUN:Disconnect()
+				HighlightPlayers(true)
+			end
+		end
+	})
 end

@@ -108,7 +108,7 @@ do
         Opened = true,
     })
 
-    local Button = Tab:Button({
+    local Button = CombatTab:Button({
         Title = "Kill All",
         Locked = false,
         Callback = function()

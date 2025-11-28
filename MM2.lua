@@ -85,7 +85,7 @@ local function KillPlayer(target)
         else
             if LocalPlayer.Backpack:FindFirstChild('Knife') then
             else
-                error()
+                Notify()
             end
             LocalPlayer.Backpack:FindFirstChild('Knife').Parent = character
         end
@@ -98,7 +98,7 @@ local function KillPlayer(target)
             task.wait()
             firetouchinterest(handle, plrRoot, 1)
         else
-            error()
+            Notify()
         end
 	end
 end

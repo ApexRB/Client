@@ -93,13 +93,15 @@ local function KillPlayer(target)
         local rightHandGrip = character:FindFirstChild('RightHand'):FindFirstChild('RightGrip')
         if rightHandGrip then
             rightHandGrip.Enabled = false
-            knife.Anchored = true
         end
         if knife and handle and character and plrRoot then
             knife:FindFirstChild("Stab"):FireServer("Slash")
             firetouchinterest(handle, plrRoot, 0)
             task.wait()
             firetouchinterest(handle, plrRoot, 1)
+        end
+         if rightHandGrip then
+            rightHandGrip.Enabled = true
         end
 	end
 end
@@ -136,8 +138,9 @@ local function KillAura()
                             end
                         end
                     end
-               end
+                end
             end
+            task.wait(.05)
         end
     end
 end

@@ -135,7 +135,7 @@ local function KillAura()
                         if plrRoot then
                             local magnitude = (root.Position - plrRoot.Position).magnitude
                             if magnitude < tonumber(KILL_AURA_DISTANCE) then
-                                KillPlayer(plrCharacter)
+                                KillPlayer(plrCharacter, true)
                             end
                         end
                     end

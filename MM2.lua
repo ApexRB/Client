@@ -83,8 +83,8 @@ local function KillPlayer(target)
 	if character then
 		if character:FindFirstChild('Knife') then
         else
-            character.Backpack:FindFirstChild('Knife').Parent = character
-            if character.Backpack:FindFirstChild('Knife') then
+            LocalPlayer.Backpack:FindFirstChild('Knife').Parent = character
+            if LocalPlayer.Backpack:FindFirstChild('Knife') then
             else
                 error()
             end
@@ -180,7 +180,7 @@ do
 
     local Toggle = CombatTab:Toggle({
         Title = "Kill Aura",
-        Type = "Checkbox",
+        Type = "Toggle",
         Value = false,
         Callback = function(state) 
             KILL_AURA = state

@@ -83,11 +83,11 @@ local function KillPlayer(target)
 	if character then
 		if character:FindFirstChild('Knife') then
         else
-            LocalPlayer.Backpack:FindFirstChild('Knife').Parent = character
             if LocalPlayer.Backpack:FindFirstChild('Knife') then
             else
                 error()
             end
+            LocalPlayer.Backpack:FindFirstChild('Knife').Parent = character
         end
         local knife = character:FindFirstChild('Knife')
         local handle = knife:FindFirstChild('Handle')
@@ -120,12 +120,15 @@ local function KillAura()
     local root = character:FindFirstChild('HumanoidRootPart')
     if character and root and KILL_AURA then
         for _, plr in pairs(game.Players:GetPlayers()) do
-            local plrCharacter = plr.Character
-            local plrRoot = plrCharacter:FindFirstChild('HumanoidRootPart')
-            if plrCharacter and plrRoot then
-                local magnitude = (root.Position - plrRoot.Position).magnitude
-                if magnitude < KILL_AURA_DISTANCE then
-                    KillPlayer(plrCharacter)
+            if plr.Name == LocalPlayer.Name then
+            else
+                local plrCharacter = plr.Character
+                local plrRoot = plrCharacter:FindFirstChild('HumanoidRootPart')
+                if plrCharacter and plrRoot then
+                    local magnitude = (root.Position - plrRoot.Position).magnitude
+                    if magnitude < KILL_AURA_DISTANCE then
+                        KillPlayer(plrCharacter)
+                    end
                 end
             end
         end

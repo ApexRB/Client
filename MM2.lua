@@ -20,6 +20,7 @@ local KILL_AURA = false
 
 local MARK = Instance.new('BoolValue', ReplicatedStorage)
 MARK.Name = 'AxelMARK'
+Workspace.FallenPartsDestroyHeight = -9999999999999999
 
 -- // MAIN VARIABLES // --
 --nil
@@ -99,9 +100,6 @@ local function KillPlayer(target)
             firetouchinterest(handle, plrRoot, 0)
             task.wait()
             firetouchinterest(handle, plrRoot, 1)
-        end
-         if rightHandGrip then
-            rightHandGrip.Enabled = true
         end
 	end
 end

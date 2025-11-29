@@ -1,4 +1,4 @@
----@diagnostic disable
+---NEW
 WindUI = getgenv().WindUI
 Window = getgenv().Window
 
@@ -202,7 +202,7 @@ end
 
 local function DrawNames(delete)
     if not delete then
-        for p, tag in pairs(tags) do
+        for p, tag in pairs(PLAYER_NAMES) do
             local char = p.Character
             local head = char and char:FindFirstChild("Head")
             

@@ -1,4 +1,4 @@
----RBBB
+---@diagnostic disable
 WindUI = getgenv().WindUI
 Window = getgenv().Window
 
@@ -202,16 +202,16 @@ end
 
 local function DrawNames(delete)
     if not delete then
-        for plr, tag in pairs(PLAYER_NAMES) do
-            local char = plr.Character
-            local head = char:FindFirstChild("Head")
-                
+        for p, tag in pairs(tags) do
+            local char = p.Character
+            local head = char and char:FindFirstChild("Head")
+            
             if head then
-                local pos = camera:WorldToViewportPoint(head.Position + Vector3.new(0, 2, 0))
-                tag.Visible = pos.Z > 0
-                tag.Position = Vector2.new(pos.X, pos.Y)
-                tag.Text = plr.Name
-                tag.Color = plr.Highlight.OutlineColor or Color3.new(1,1,1)
+                local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(head.Position + Vector3.new(0, 2, 0))
+                tag.Visible = onScreen
+                tag.Position = Vector2.new(screenPos.X, screenPos.Y)
+                tag.Text = p.Name
+                tag.Color = p.Team and p.Team.TeamColor.Color or Color3.new(1,1,1)
             else
                 tag.Visible = false
             end

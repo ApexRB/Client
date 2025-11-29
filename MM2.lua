@@ -92,20 +92,11 @@ local function KillPlayer(target, grip)
         if knife then
             local handle = knife:FindFirstChild('Handle')
             local plrRoot = target:FindFirstChild('HumanoidRootPart')
-            local rightHandGrip = character:FindFirstChild('RightHand'):FindFirstChild('RightGrip')
-            if rightHandGrip and grip then
-                handle.Anchored = true
-                rightHandGrip.Enabled = false
-            end
             if knife and handle and character and plrRoot then
                 knife:FindFirstChild("Stab"):FireServer("Slash")
                 firetouchinterest(handle, plrRoot, 0)
                 task.wait()
                 firetouchinterest(handle, plrRoot, 1)
-            end
-            if rightHandGrip and grip then
-                handle.Anchored = false
-                rightHandGrip.Enabled = true
             end
         end
 	end

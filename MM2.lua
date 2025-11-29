@@ -94,6 +94,7 @@ local function KillPlayer(target, grip)
             local plrRoot = target:FindFirstChild('HumanoidRootPart')
             local rightHandGrip = character:FindFirstChild('RightHand'):FindFirstChild('RightGrip')
             if rightHandGrip and grip then
+                handle.Anchored = true
                 rightHandGrip.Enabled = false
             end
             if knife and handle and character and plrRoot then
@@ -101,6 +102,10 @@ local function KillPlayer(target, grip)
                 firetouchinterest(handle, plrRoot, 0)
                 task.wait()
                 firetouchinterest(handle, plrRoot, 1)
+            end
+            if rightHandGrip and grip then
+                handle.Anchored = false
+                rightHandGrip.Enabled = true
             end
         end
 	end
@@ -145,7 +150,6 @@ local function KillAura()
         end
     end
 end
-
 
 Window:OnDestroy(function()
 	if MARK then

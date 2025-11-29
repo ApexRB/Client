@@ -1,4 +1,4 @@
---12
+---@diagnostic disable
 WindUI = getgenv().WindUI
 Window = getgenv().Window
 
@@ -152,7 +152,9 @@ local function Highlight(value, itemName, color, delete)
 				local character = plr.Character
 				if character then
                     if itemName == 'none' then
-                        if not character:FindFirstChild('Gun') or plr.Backpack:FindFirstChild('Gun') and not character:FindFirstChild('Knife') or plr.Backpack:FindFirstChild('Knife') then
+                        if character:FindFirstChild('Gun') or plr.Backpack:FindFirstChild('Gun') then
+                        elseif character:FindFirstChild('Knife') or plr.Backpack:FindFirstChild('Knife') then
+                        else
                             local highlight
                             if character:FindFirstChildOfClass('Highlight') then
                                 highlight = character:FindFirstChildOfClass('Highlight')
@@ -164,7 +166,7 @@ local function Highlight(value, itemName, color, delete)
                         end
                     else
                         if character:FindFirstChild(itemName) or plr.Backpack:FindFirstChild(itemName) then
-                             local highlight
+                            local highlight
                             if character:FindFirstChildOfClass('Highlight') then
                                 highlight = character:FindFirstChildOfClass('Highlight')
                             else

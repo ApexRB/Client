@@ -1,4 +1,4 @@
----@diagnostic disable
+---225
 WindUI = getgenv().WindUI
 Window = getgenv().Window
 
@@ -107,9 +107,9 @@ local function KillPlayer(target, grip)
             local plrRoot = target:FindFirstChild('HumanoidRootPart')
             if knife and handle and character and plrRoot then
                 knife:FindFirstChild("Stab"):FireServer("Slash")
-                firetouchinterest(handle, plrRoot, 0)
+                firetouchinterest(plrRoot, handle, 0)
                 task.wait()
-                firetouchinterest(handle, plrRoot, 1)
+                firetouchinterest(plrRoot, handle, 1)
             end
         end
 	end
@@ -233,11 +233,15 @@ end
 
 --// OTHER //--
 for _, plr in pairs(Players:GetPlayers()) do
-    DrawName(plr)
+    if plr ~= LocalPlayer then
+        DrawName(plr)
+    end
 end
 
 Players.PlayerAdded:Connect(function(plr)
-    DrawName(plr)
+    if plr ~= LocalPlayer then
+        DrawName(plr)
+    end
 end)
 
 Players.PlayerRemoving:Connect(function(plr)

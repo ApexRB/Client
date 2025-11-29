@@ -1,4 +1,4 @@
---lol
+--12
 WindUI = getgenv().WindUI
 Window = getgenv().Window
 
@@ -151,108 +151,28 @@ local function Highlight(value, itemName, color, delete)
 			for _, plr in pairs(Players:GetChildren()) do
 				local character = plr.Character
 				if character then
-                    if character:FindFirstChild(itemName) or plr.Backpack:FindFirstChild(itemName) then
-                        local highlight
-                        if character:FindFirstChildOfClass('Highlight') then
-                            highlight = character:FindFirstChildOfClass('Highlight')
-                        else
-                            highlight = Instance.new('Highlight', character)
+                    if itemName == 'none' then
+                        if not character:FindFirstChild('Gun') or plr.Backpack:FindFirstChild('Gun') and not character:FindFirstChild('Knife') or plr.Backpack:FindFirstChild('Knife') then
+                            local highlight
+                            if character:FindFirstChildOfClass('Highlight') then
+                                highlight = character:FindFirstChildOfClass('Highlight')
+                            else
+                                highlight = Instance.new('Highlight', character)
+                            end
+                            highlight.FillTransparency = 1
+                            highlight.OutlineColor = Color3.new(0, 255, 0)
                         end
-                        highlight.FillTransparency = 1
-                        highlight.OutlineColor = color
-                    end
-				end
-			end
-		end
-	else
-		for _, plr in pairs(Players:GetChildren()) do
-			local character = plr.Character
-			if character then
-				if character:FindFirstChildOfClass('Highlight') then
-					character:FindFirstChildOfClass('Highlight'):Destroy()
-				end
-			end
-		end
-	end
-end
-
-local function HighlightMurder(delete)
-	if not delete then
-		if HIGHLIGHT_MURDER then
-			for _, plr in pairs(Players:GetChildren()) do
-				local character = plr.Character
-				if character then
-                    if character:FindFirstChild('Knife') or plr.Backpack:FindFirstChild('Knife') then
-                        local highlight
-                        if character:FindFirstChildOfClass('Highlight') then
-                            highlight = character:FindFirstChildOfClass('Highlight')
-                        else
-                            highlight = Instance.new('Highlight', character)
+                    else
+                        if character:FindFirstChild(itemName) or plr.Backpack:FindFirstChild(itemName) then
+                             local highlight
+                            if character:FindFirstChildOfClass('Highlight') then
+                                highlight = character:FindFirstChildOfClass('Highlight')
+                            else
+                                highlight = Instance.new('Highlight', character)
+                            end
+                            highlight.FillTransparency = 1
+                            highlight.OutlineColor = color
                         end
-                        highlight.FillTransparency = 1
-                        highlight.OutlineColor = Color3.new(255, 0, 0)
-                    end
-				end
-			end
-		end
-	else
-		for _, plr in pairs(Players:GetChildren()) do
-			local character = plr.Character
-			if character then
-				if character:FindFirstChildOfClass('Highlight') then
-					character:FindFirstChildOfClass('Highlight'):Destroy()
-				end
-			end
-		end
-	end
-end
-
-local function HighlightSheriff(delete)
-	if not delete then
-		if HIGHLIGHT_SHERIFF then
-			for _, plr in pairs(Players:GetChildren()) do
-				local character = plr.Character
-				if character then
-                    if character:FindFirstChild('Gun') or plr.Backpack:FindFirstChild('Gun') then
-                        local highlight
-                        if character:FindFirstChildOfClass('Highlight') then
-                            highlight = character:FindFirstChildOfClass('Highlight')
-                        else
-                            highlight = Instance.new('Highlight', character)
-                        end
-                        highlight.FillTransparency = 1
-                        highlight.OutlineColor = Color3.new(0, 0, 255)
-                    end
-				end
-			end
-		end
-	else
-		for _, plr in pairs(Players:GetChildren()) do
-			local character = plr.Character
-			if character then
-				if character:FindFirstChildOfClass('Highlight') then
-					character:FindFirstChildOfClass('Highlight'):Destroy()
-				end
-			end
-		end
-	end
-end
-
-local function HighlightPlayers(delete)
-	if not delete then
-		if HIGHLIGHT_PLAYERS then
-			for _, plr in pairs(Players:GetChildren()) do
-				local character = plr.Character
-				if character then
-                    if not character:FindFirstChild('Gun') or plr.Backpack:FindFirstChild('Gun') and not character:FindFirstChild('Knife') or plr.Backpack:FindFirstChild('Knife') then
-                        local highlight
-                        if character:FindFirstChildOfClass('Highlight') then
-                            highlight = character:FindFirstChildOfClass('Highlight')
-                        else
-                            highlight = Instance.new('Highlight', character)
-                        end
-                        highlight.FillTransparency = 1
-                        highlight.OutlineColor = Color3.new(0, 255, 0)
                     end
 				end
 			end
@@ -374,11 +294,28 @@ do
 			HIGHLIGHT_SHERIFF = state
 			if HIGHLIGHT_SHERIFF then
 				SHERIFF_RUN = RunService.Heartbeat:Connect(function()
-					HighlightSheriff()
+					Highlight(HIGHLIGHT_SHERIFF, 'Gun', Color3.new(0, 0, 255))
 				end)
 			else
 				SHERIFF_RUN:Disconnect()
-				HighlightSheriff(true)
+				Highlight(HIGHLIGHT_SHERIFF, 'Gun', Color3.new(0, 0, 255), true)
+			end
+		end
+	})
+
+     local Toggle = VisualsTab:Toggle({
+		Title = "Highlight Innocents" ,
+		Type = "Toggle",
+		Value = false,
+		Callback = function(state) 
+			HIGHLIGHT_PLAYERS = state
+			if HIGHLIGHT_PLAYERS then
+				PLAYERS_RUN = RunService.Heartbeat:Connect(function()
+					Highlight(HIGHLIGHT_PLAYERS, 'none', Color3.new(0, 255, 0))
+				end)
+			else
+				PLAYERS_RUN:Disconnect()
+				Highlight(HIGHLIGHT_PLAYERS, 'none', Color3.new(0, 255, 0), true)
 			end
 		end
 	})

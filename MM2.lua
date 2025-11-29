@@ -1,4 +1,4 @@
----none
+---@diagnostic disable
 WindUI = getgenv().WindUI
 Window = getgenv().Window
 

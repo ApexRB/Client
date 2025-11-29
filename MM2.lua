@@ -15,15 +15,18 @@ local VirtualInput = game:GetService("VirtualInputManager")
 local CurrentCamera = Workspace.CurrentCamera
 
 --// MAIN THINGS //--
-local KILL_AURA_DISTANCE = 15
-local KILL_AURA = false
+--nil
 
 local MARK = Instance.new('BoolValue', ReplicatedStorage)
 MARK.Name = 'AxelMARK'
 Workspace.FallenPartsDestroyHeight = -9999999999999999
 
 -- // MAIN VARIABLES // --
---nil
+local KILL_AURA_DISTANCE = 15
+local KILL_AURA = false
+local HIGHLIGHT_MURDER = false
+local HIGHLIGHT_SHERIFF = false
+local HIGHLIGHT_PLAYERS = false 
 
 -- // ERROR FUNCTION // --
 function Notify(message, description, time)
@@ -142,6 +145,99 @@ local function KillAura()
     end
 end
 
+local function HighlightMurder(delete)
+	if not delete then
+		if HIGHLIGHT_MURDER then
+			for _, plr in pairs(Players:GetChildren()) do
+				local character = plr.Character
+				if character then
+                    if character:FindFirstChild('Knife') or plr.Backpack:FindFirstChild('Knife') then
+                        local highlight
+                        if character:FindFirstChildOfClass('Highlight') then
+                            highlight = character:FindFirstChildOfClass('Highlight')
+                        else
+                            highlight = Instance.new('Highlight', character)
+                        end
+                        highlight.FillTransparency = 1
+                        highlight.OutlineColor = Color3.new(255, 0, 0)
+                    end
+				end
+			end
+		end
+	else
+		for _, plr in pairs(Players:GetChildren()) do
+			local character = plr.Character
+			if character then
+				if character:FindFirstChildOfClass('Highlight') then
+					character:FindFirstChildOfClass('Highlight'):Destroy()
+				end
+			end
+		end
+	end
+end
+
+local function HighlightSheriff(delete)
+	if not delete then
+		if HIGHLIGHT_SHERIFF then
+			for _, plr in pairs(Players:GetChildren()) do
+				local character = plr.Character
+				if character then
+                    if character:FindFirstChild('Gun') or plr.Backpack:FindFirstChild('Gun') then
+                        local highlight
+                        if character:FindFirstChildOfClass('Highlight') then
+                            highlight = character:FindFirstChildOfClass('Highlight')
+                        else
+                            highlight = Instance.new('Highlight', character)
+                        end
+                        highlight.FillTransparency = 1
+                        highlight.OutlineColor = Color3.new(0, 0, 255)
+                    end
+				end
+			end
+		end
+	else
+		for _, plr in pairs(Players:GetChildren()) do
+			local character = plr.Character
+			if character then
+				if character:FindFirstChildOfClass('Highlight') then
+					character:FindFirstChildOfClass('Highlight'):Destroy()
+				end
+			end
+		end
+	end
+end
+
+local function HighlightPlayers(delete)
+	if not delete then
+		if HIGHLIGHT_PLAYERS then
+			for _, plr in pairs(Players:GetChildren()) do
+				local character = plr.Character
+				if character then
+                    if not character:FindFirstChild('Gun') or plr.Backpack:FindFirstChild('Gun') and not character:FindFirstChild('Knife') or plr.Backpack:FindFirstChild('Knife') then
+                        local highlight
+                        if character:FindFirstChildOfClass('Highlight') then
+                            highlight = character:FindFirstChildOfClass('Highlight')
+                        else
+                            highlight = Instance.new('Highlight', character)
+                        end
+                        highlight.FillTransparency = 1
+                        highlight.OutlineColor = Color3.new(0, 255, 0)
+                    end
+				end
+			end
+		end
+	else
+		for _, plr in pairs(Players:GetChildren()) do
+			local character = plr.Character
+			if character then
+				if character:FindFirstChildOfClass('Highlight') then
+					character:FindFirstChildOfClass('Highlight'):Destroy()
+				end
+			end
+		end
+	end
+end
+
 Window:OnDestroy(function()
 	if MARK then
 		MARK:Destroy()
@@ -223,18 +319,35 @@ do
     })
 
 	local Toggle = VisualsTab:Toggle({
-		Title = "Players" ,
+		Title = "Highlight Murder" ,
 		Type = "Toggle",
 		Value = false,
 		Callback = function(state) 
-			PLAYERS_HIGHLIGHTS = state
-			if PLAYERS_HIGHLIGHTS then
-				PLAYERS_RUN = RunService.Heartbeat:Connect(function()
-					HighlightPlayers()
+			HIGHLIGHT_MURDER = state
+			if HIGHLIGHT_MURDER then
+				MURDER_RUN = RunService.Heartbeat:Connect(function()
+					HighlightMurder()
 				end)
 			else
-				PLAYERS_RUN:Disconnect()
-				HighlightPlayers(true)
+				MURDER_RUN:Disconnect()
+				HighlightMurder(true)
+			end
+		end
+	})
+
+    local Toggle = VisualsTab:Toggle({
+		Title = "Highlight Sheriff" ,
+		Type = "Toggle",
+		Value = false,
+		Callback = function(state) 
+			HIGHLIGHT_SHERIFF = state
+			if HIGHLIGHT_SHERIFF then
+				SHERIFF_RUN = RunService.Heartbeat:Connect(function()
+					HighlightSheriff()
+				end)
+			else
+				SHERIFF_RUN:Disconnect()
+				HighlightSheriff(true)
 			end
 		end
 	})

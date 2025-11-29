@@ -26,7 +26,9 @@ local KILL_AURA_DISTANCE = 15
 local KILL_AURA = false
 local HIGHLIGHT_MURDER = false
 local HIGHLIGHT_SHERIFF = false
-local HIGHLIGHT_PLAYERS = false 
+local HIGHLIGHT_PLAYERS = false
+local PLAYER_NAMES = {}
+local ESP_NAMES = false
 
 -- // ERROR FUNCTION // --
 function Notify(message, description, time)
@@ -62,6 +64,13 @@ function LeftClick()
 	VirtualInput:SendMouseButtonEvent(0, 0, 0, true, game, 1)
 	task.wait()
 	VirtualInput:SendMouseButtonEvent(0, 0, 0, false, game, 1)
+end
+
+function DrawName(player)
+    tags[player] = Drawing.new("Text")
+    tags[player].Size = 18
+    tags[player].Center = true
+    tags[player].Outline = true
 end
 
 function Noclip(status, children)
@@ -191,6 +200,42 @@ local function Highlight(value, itemName, color, delete)
 	end
 end
 
+local function DrawNames(delete)
+    if not delete then
+        for plr, tag in pairs(tags) do
+            local char = plr.Character
+            local head = char and char:FindFirstChild("Head")
+                
+            if head then
+                local pos = camera:WorldToViewportPoint(head.Position + Vector3.new(0, 2, 0))
+                tag.Visible = pos.Z > 0
+                tag.Position = Vector2.new(pos.X, pos.Y)
+                tag.Text = plr.Name
+                tag.Color = plr.Highlight.OutlineColor or Color3.new(1,1,1)
+            else
+                tag.Visible = false
+            end
+        end
+    else
+        for plr, tag in pairs(tags) do
+            tag.Visible = false
+        end
+    end
+end
+
+--// OTHER //--
+for _, plr in pairs(Players:GetPlayers()) do
+    DrawName(plr)
+end
+
+Players.PlayerAdded:Connect(function(plr)
+    DrawName(plr)
+end)
+
+Players.PlayerRemoving:Connect(function(plr)
+    if tags[plr] then tags[plr]:Remove() end
+end)
+
 Window:OnDestroy(function()
 	if MARK then
 		MARK:Destroy()
@@ -305,7 +350,7 @@ do
 		end
 	})
 
-     local Toggle = VisualsTab:Toggle({
+    local Toggle = VisualsTab:Toggle({
 		Title = "Highlight Innocents" ,
 		Type = "Toggle",
 		Value = false,
@@ -318,6 +363,23 @@ do
 			else
 				PLAYERS_RUN:Disconnect()
 				Highlight(HIGHLIGHT_PLAYERS, 'none', Color3.new(0, 255, 0), true)
+			end
+		end
+	})
+
+    local Toggle = VisualsTab:Toggle({
+		Title = "Show Nicknames" ,
+		Type = "Toggle",
+		Value = false,
+		Callback = function(state) 
+			ESP_NAMES = state
+			if ESP_NAMES then
+				NAMES_RUN = RunService.Heartbeat:Connect(function()
+					DrawNames()
+				end)
+			else
+				NAMES_RUN:Disconnect()
+				DrawNames(true)
 			end
 		end
 	})

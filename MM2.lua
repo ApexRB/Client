@@ -1,4 +1,4 @@
----@diagnostic disable
+---none
 WindUI = getgenv().WindUI
 Window = getgenv().Window
 
@@ -67,10 +67,10 @@ function LeftClick()
 end
 
 function DrawName(player)
-    tags[player] = Drawing.new("Text")
-    tags[player].Size = 18
-    tags[player].Center = true
-    tags[player].Outline = true
+    PLAYER_NAMES[player] = Drawing.new("Text")
+    PLAYER_NAMES[player].Size = 18
+    PLAYER_NAMES[player].Center = true
+    PLAYER_NAMES[player].Outline = true
 end
 
 function Noclip(status, children)
@@ -202,7 +202,7 @@ end
 
 local function DrawNames(delete)
     if not delete then
-        for plr, tag in pairs(tags) do
+        for plr, tag in pairs(PLAYER_NAMES) do
             local char = plr.Character
             local head = char and char:FindFirstChild("Head")
                 
@@ -217,7 +217,7 @@ local function DrawNames(delete)
             end
         end
     else
-        for plr, tag in pairs(tags) do
+        for plr, tag in pairs(PLAYER_NAMES) do
             tag.Visible = false
         end
     end
@@ -233,7 +233,7 @@ Players.PlayerAdded:Connect(function(plr)
 end)
 
 Players.PlayerRemoving:Connect(function(plr)
-    if tags[plr] then tags[plr]:Remove() end
+    if PLAYER_NAMES[plr] then PLAYER_NAMES[plr]:Remove() end
 end)
 
 Window:OnDestroy(function()

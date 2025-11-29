@@ -145,6 +145,37 @@ local function KillAura()
     end
 end
 
+local function Highlight(value, itemName, color, delete)
+	if not delete then
+		if value then
+			for _, plr in pairs(Players:GetChildren()) do
+				local character = plr.Character
+				if character then
+                    if character:FindFirstChild(itemName) or plr.Backpack:FindFirstChild(itemName) then
+                        local highlight
+                        if character:FindFirstChildOfClass('Highlight') then
+                            highlight = character:FindFirstChildOfClass('Highlight')
+                        else
+                            highlight = Instance.new('Highlight', character)
+                        end
+                        highlight.FillTransparency = 1
+                        highlight.OutlineColor = color
+                    end
+				end
+			end
+		end
+	else
+		for _, plr in pairs(Players:GetChildren()) do
+			local character = plr.Character
+			if character then
+				if character:FindFirstChildOfClass('Highlight') then
+					character:FindFirstChildOfClass('Highlight'):Destroy()
+				end
+			end
+		end
+	end
+end
+
 local function HighlightMurder(delete)
 	if not delete then
 		if HIGHLIGHT_MURDER then
@@ -326,11 +357,11 @@ do
 			HIGHLIGHT_MURDER = state
 			if HIGHLIGHT_MURDER then
 				MURDER_RUN = RunService.Heartbeat:Connect(function()
-					HighlightMurder()
+					Highlight(HIGHLIGHT_MURDER, 'Knife', Color3.new(255, 0, 0))
 				end)
 			else
 				MURDER_RUN:Disconnect()
-				HighlightMurder(true)
+				Highlight(HIGHLIGHT_MURDER, 'Knife', Color3.new(255, 0, 0), true)
 			end
 		end
 	})

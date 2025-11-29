@@ -1,4 +1,4 @@
----@diagnostic disable
+---RBBB
 WindUI = getgenv().WindUI
 Window = getgenv().Window
 
@@ -204,7 +204,7 @@ local function DrawNames(delete)
     if not delete then
         for plr, tag in pairs(PLAYER_NAMES) do
             local char = plr.Character
-            local head = char and char:FindFirstChild("Head")
+            local head = char:FindFirstChild("Head")
                 
             if head then
                 local pos = camera:WorldToViewportPoint(head.Position + Vector3.new(0, 2, 0))

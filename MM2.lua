@@ -1,4 +1,4 @@
----NEW
+---@diagnostic disable
 WindUI = getgenv().WindUI
 Window = getgenv().Window
 
@@ -71,6 +71,7 @@ function DrawName(player)
     PLAYER_NAMES[player].Size = 18
     PLAYER_NAMES[player].Center = true
     PLAYER_NAMES[player].Outline = true
+    PLAYER_NAMES[player].Font = 2
 end
 
 function Noclip(status, children)
@@ -202,16 +203,23 @@ end
 
 local function DrawNames(delete)
     if not delete then
-        for p, tag in pairs(PLAYER_NAMES) do
-            local char = p.Character
+        for plr, tag in pairs(PLAYER_NAMES) do
+            local char = plr.Character
             local head = char and char:FindFirstChild("Head")
             
             if head then
                 local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(head.Position + Vector3.new(0, 2, 0))
                 tag.Visible = onScreen
                 tag.Position = Vector2.new(screenPos.X, screenPos.Y)
-                tag.Text = p.Name
-                tag.Color = p.Team and p.Team.TeamColor.Color or Color3.new(1,1,1)
+                tag.Text = plr.Name
+                local backpack = plr.Backpack
+                if backpack:FindFirstChild('Knife') or char:FindFirstChild('Knife') then
+                    tag.Color = Color3.new(1, 0, 0)
+                elseif backpack:FindFirstChild('Gun') or char:FindFirstChild('Gun') then
+                    tag.Color = Color3.new(0, 0, 1)
+                else
+                    tag.Color = Color3.new(0, 1, 0)
+                end
             else
                 tag.Visible = false
             end

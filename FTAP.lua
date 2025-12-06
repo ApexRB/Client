@@ -670,7 +670,7 @@ do
 	})
 end
 
-if getgenv().Loaded then
+if getgenv().Loaded ~= nil then
 	getgenv().Loaded = true
 	Notify('Successful hub loading!', 'GameID: ' .. game.PlaceId, 5)
 else

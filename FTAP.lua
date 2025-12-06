@@ -339,17 +339,17 @@ do
     })
 
 	local Slider = CombatTab:Slider({
-		Title = "Throw Strength",
-		Step = 10,
+        Title = "Throw Strength",
+        Step = 10,
 		Value = {
 			Min = 450,
 			Max = 7500,
 			Default = 450,
 		},
-		Callback = function(value)
-			THROW_STRENGTH = value
-		end
-	})
+        Callback = function(value)
+            THROW_STRENGTH = value
+        end
+    })
 
 	local Toggle = CombatTab:Toggle({
 		Title = "Enable Throw Strength" ,

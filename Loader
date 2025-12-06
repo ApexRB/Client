@@ -1,3 +1,5 @@
+---@diagnostic disable
+
 local SupportedGames = {
     [142823291] = 'MM2.lua',
     [6961824067] = 'FTAP.lua',
@@ -221,7 +223,7 @@ if SupportedGames[game.PlaceId] then
 
     repeat task.wait() until getgenv().Loaded == true
 
-    window:Divider()
+    Window:Divider()
 
     -- // CREATING SETTINGS TAB // --
     do

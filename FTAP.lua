@@ -670,36 +670,8 @@ do
 	})
 end
 
-Window:Divider()
-
--- // SETTINGS TAB // --
-do
-	local CreditsTab = Window:Tab({
-		Title = "Credits",
-		Icon = "heart", -- optional
-		Locked = false,
-	})
-
-	local Section = CreditsTab:Section({ 
-        Title = "Credits",
-        Box = false,
-        Icon = "heart",
-        TextTransparency = 0.05,
-        TextXAlignment = "Left",
-        Opened = true,
-    })
-
-	local Paragraph = CreditsTab:Paragraph({
-		Title = "Sadlunov - dev"
-	})
-
-	local Paragraph = CreditsTab:Paragraph({
-		Title = "WindUI - main library"
-	})
-
-	local Paragraph = CreditsTab:Paragraph({
-		Title = "Infinite Yield"
-	})
+if getgenv().Loaded then
+	getgenv().Loaded = true
 end
 
 Notify('Successful hub loading!', 'GameID: ' .. game.PlaceId, 5)

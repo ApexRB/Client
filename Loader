@@ -17,9 +17,12 @@ end
 
 print('--- Loading global functions ---')
 print('✅ Successfully loaded functions')
+getgenv().Loaded = false
 
 getgenv().WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 scriptWindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+
+local WindUI = getgenv().WindUI
 
 scriptWindUI:AddTheme({
     Name = "Aurora",
@@ -92,6 +95,8 @@ getgenv().Window = WindUI:CreateWindow({
 		Callback = function() end,
 	},
 })
+
+local Window = getgenv().Window
 
 WindUI:AddTheme({
     Name = "Aurora",
@@ -211,7 +216,6 @@ WindUI:Notify({
 
 task.wait(3)
 if SupportedGames[game.PlaceId] then
-    getgenv().Loaded = false
     local scriptPath = "https://raw.githubusercontent.com/ApexRB/Client/refs/heads/main/" .. SupportedGames[game.PlaceId]
     loadstring(game:HttpGet(scriptPath))()
 

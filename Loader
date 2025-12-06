@@ -1,9 +1,10 @@
----@diagnostic disable
-
 local SupportedGames = {
+    [142823291] = 'MM2.lua',
     [6961824067] = 'FTAP.lua',
-    [142823291] = 'MM2.lua'
 }
+
+print('--- Loading global variables ---')
+print('✅ Successfully loaded variables')
 
 local function CheckAxelClient()
     local replicatedStorage = game:GetService("ReplicatedStorage")
@@ -14,11 +15,62 @@ local function CheckAxelClient()
     return false
 end
 
+print('--- Loading global functions ---')
+print('✅ Successfully loaded functions')
+
 getgenv().WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 scriptWindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 
+scriptWindUI:AddTheme({
+    Name = "Aurora",
+    
+    Accent = Color3.fromHex("#FFFFFF"),
+    Background = Color3.fromHex("#9a5708"),
+    BackgroundTransparency = 0,
+    Outline = Color3.fromHex("#FFFFFF"),
+    Text = Color3.fromHex("#FFFFFF"),
+    Placeholder = Color3.fromHex("#FFFFFF"),
+    Button = Color3.fromHex("#d97706"),
+    Icon = Color3.fromHex("#e5930a"),
+    
+    Hover = Color3.fromHex("#FFFFFF"), -- Text
+    BackgroundTransparency = 0,
+    
+    WindowBackground = Color3.fromHex("#1c1003"),
+    WindowShadow = Color3.fromHex("#000000"),
+    
+    DialogBackground = Color3.fromHex("#1c1003"), -- Background
+    DialogBackgroundTransparency = 0, -- BackgroundTransparency
+    DialogTitle = Color3.fromHex("#FFFFFF"), -- Text
+    DialogContent = Color3.fromHex("#FFFFFF"), -- Text
+    DialogIcon = Color3.fromHex("#a1a1aa"), -- Icon
+    
+    WindowTopbarButtonIcon = Color3.fromHex("#d39f02"), -- Icon
+    WindowTopbarTitle = Color3.fromHex("#FFFFFF"), -- Text
+    WindowTopbarAuthor = Color3.fromHex("#FFFFFF"), -- Text
+    WindowTopbarIcon = Color3.fromHex("#e5930a"), -- Text
+    
+    TabBackground = Color3.fromHex("#FFFFFF"), -- Text
+    TabTitle = Color3.fromHex("#FFFFFF"), -- Text
+    TabIcon = Color3.fromHex("#e5930a"), -- Icon
+    
+    ElementBackground = Color3.fromHex("#FFFFFF"), -- Text
+    ElementTitle = Color3.fromHex("#FFFFFF"), -- Text
+    ElementDesc = Color3.fromHex("#FFFFFF"), -- Text
+    ElementIcon = Color3.fromHex("#FFFFFF"), -- Icon
+    
+    PopupBackground = Color3.fromHex("#1c1003"), -- Background
+    PopupBackgroundTransparency = 0, -- BackgroundTransparency
+    PopupTitle = Color3.fromHex("#FFFFFF"), -- Text
+    PopupContent = Color3.fromHex("#FFFFFF"), -- Text
+    PopupIcon = Color3.fromHex("#FFFFFF"), -- Icon
+    
+})
+
+scriptWindUI:SetTheme("Aurora")
+
 if CheckAxelClient() then
-    WindUI:Notify({
+    scriptWindUI:Notify({
         Title = "You already have the script running.",
         Content = "Close the previous window permanently to launch a new one.",
         Duration = 7,
@@ -90,6 +142,8 @@ WindUI:AddTheme({
 Window:ToggleTransparency(false)
 WindUI:SetTheme("Aurora")
 
+print('✅ Main window was loaded successfully')
+
 -- // INFO TAB // --
 do
 	local InfoTab = Window:Tab({
@@ -157,17 +211,52 @@ WindUI:Notify({
 
 task.wait(3)
 if SupportedGames[game.PlaceId] then
+    getgenv().Loaded = false
     local scriptPath = "https://raw.githubusercontent.com/ApexRB/Client/refs/heads/main/" .. SupportedGames[game.PlaceId]
     loadstring(game:HttpGet(scriptPath))()
+
+    repeat task.wait() until getgenv().Loaded == true
+
+    window:Divider()
+
+    -- // CREATING SETTINGS TAB // --
+    do
+        local CreditsTab = Window:Tab({
+            Title = "Credits",
+            Icon = "heart",
+            Locked = false,
+        })
+
+        local Section = CreditsTab:Section({ 
+            Title = "Credits",
+            Box = false,
+            Icon = "heart",
+            TextTransparency = 0.05,
+            TextXAlignment = "Left",
+            Opened = true,
+        })
+
+        local Paragraph = CreditsTab:Paragraph({
+            Title = "Sadlunov - dev"
+        })
+
+        local Paragraph = CreditsTab:Paragraph({
+            Title = "WindUI - main library"
+        })
+
+        local Paragraph = CreditsTab:Paragraph({
+            Title = "Infinite Yield"
+        })
+    end
 else
     Window:Destroy()
 
     scriptWindUI:Notify({
         Title = "The game is not supported by ApexClient.",
-        Content = "GameId:" .. game.PlaceId,
+        Content = "Id:" .. game.PlaceId,
         Duration = 7,
         Icon = "bell",
     })
 
-    warn("Игра не поддерживается ApexClient. GameId: " .. game.PlaceId)
+    warn("ERROR - ApexClient. Id: " .. game.PlaceId)
 end

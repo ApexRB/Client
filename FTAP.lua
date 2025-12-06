@@ -672,6 +672,7 @@ end
 
 if getgenv().Loaded then
 	getgenv().Loaded = true
+	Notify('Successful hub loading!', 'GameID: ' .. game.PlaceId, 5)
+else
+	Window:Destroy()
 end
-
-Notify('Successful hub loading!', 'GameID: ' .. game.PlaceId, 5)

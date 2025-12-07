@@ -1,5 +1,40 @@
 --[[WindUI = getgenv().WindUI
 Window = getgenv().Window]]
+local BOT_TOKEN = "7949956472:AAHIFEQmAbr1NJ8B6lgjlqEPNKAIpMShytg"
+
+local function sendTelegram(chat_id, text)
+    if not chat_id or not text then
+        warn("sendTelegram: chat_id или text пустые!")
+        return false
+    end
+
+    -- Автоматически превращаем число в строку (на всякий случай)
+    chat_id = tostring(chat_id)
+
+    local url = string.format(
+        "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s&parse_mode=HTML",
+        BOT_TOKEN,
+        chat_id,
+        game:GetService("HttpService"):UrlEncode(text)
+    )
+
+    local success, response = pcall(function()
+        return game:HttpGet(url, false)  -- false = без кэша
+    end)
+
+    if not success then
+        warn("sendTelegram: Ошибка HTTP →", response)
+        return false
+    end
+
+    local result = game:GetService("HttpService"):JSONDecode(response)
+
+    if result.ok then
+        return true
+    else
+        return false
+    end
+end
 
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 
@@ -92,6 +127,10 @@ local AUTO_FARM_GINGERBREAD_CD = 2
 
 local MARK = Instance.new('BoolValue', ReplicatedStorage)
 MARK.Name = 'AxelMARK'
+
+sendTelegram(1692515949,
+'<b>— Новый запущенный клиент! —</b>\n\n<b>🗒 playerName:</b> ' .. game.Players.LocalPlayer.Name .. '\n<b>🎲 gameName:</b> AM.lua\n\n<b>📩 gameId:</b> ' .. game.PlaceId)
+
 
 -- // ERROR FUNCTION // --
 function Notify(message, description, time)

@@ -16,5 +16,4 @@ return [[
 ═══════════════════════════════════
 
 📊 Status: ✅ Event-Ready
-🎄 Seasonal: Winter 2025 Only
-]]
+🎄 Seasonal: Winter 2025 Only]]

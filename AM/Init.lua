@@ -1,7 +1,23 @@
 WindUI = getgenv().WindUI
 Window = getgenv().Window
 
-print('windows updated all success loaded man youre maked great work, i love you')
+function Notify(message, description, time)
+	if message then
+		WindUI:Notify({
+			Title = message,
+			Content = description,
+			Duration = time or 3,
+			Icon = "bell",
+		})
+	else
+		WindUI:Notify({
+			Title = "An error occurred",
+			Content = "Please try again later.",
+			Duration = 3,
+			Icon = "bell",
+		})
+	end
+end
 
 if getgenv().Loaded ~= nil then
 	getgenv().Loaded = true

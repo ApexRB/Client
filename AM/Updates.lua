@@ -1,26 +1,19 @@
 return [[
-┏━━━━━━━━━━━━━━━━━━━━┓
-┃       v2.1.4       ┃
-┗━━━━━━━━━━━━━━━━━━━━┛
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃    [ADOPT ME] :: 13.12.2025     ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-🔹 [ADDED]
-   ├─ Knife auto-equip
-   ├─ Custom kill messages  
-   └─ ESP color options
+❇️ [ADDED]
+   ├─ Delete Penguins Function
+   ├─ Gingerbread Autofarm
+   └─ Anti-AFK
 
-🔸 [FIXED]
-   ├─ Server change crash
-   └─ ESP for new players
+📢 [ANNOUNCEMENT]
+   └─ ⚠️ Made for 2025 Winter Event
+   Will be removed after event ends
+   Features may break post-update
 
-🔹 [IMPROVED]
-   ├─ Auto-farm +40%
-   └─ UI responsiveness
-
-🔸 [REMOVED]
-   └─ Old teleport system
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📊 Status: ✅ Fully Working
-🔒 Security: 🛡️ Undetected
-⚡ Performance: 🚀 Optimized
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 Status: ✅ Event-Ready
+🎄 Seasonal: Winter 2025 Only
 ]]

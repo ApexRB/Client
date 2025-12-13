@@ -159,14 +159,16 @@ function GingerbreadFarm()
             humRoot.CFrame = mainRoot.CFrame
             repeat task.wait() until mainRoot.Size.Y < 4.01 or not mainRoot.Parent
         elseif AUTOFARM_GINGERBOARD_TYPE == 'Tween' then
-            local distance = (character.PrimaryPart.Position - mainRoot.Position).Magnitude
-            local tweenTime = distance / AUTOFARM_GINGERBREAD_SPEED
+            if mainRoot.Size.Y > 4.01 then
+                local distance = (character.PrimaryPart.Position - mainRoot.Position).Magnitude
+                local tweenTime = distance / AUTOFARM_GINGERBREAD_SPEED
 
-            TweenService:Create(character.PrimaryPart, TweenInfo.new(tweenTime, Enum.EasingStyle.Linear), {
-                CFrame = mainRoot.CFrame
-            }):Play()
-                            
-            task.wait(tweenTime)
+                TweenService:Create(character.PrimaryPart, TweenInfo.new(tweenTime, Enum.EasingStyle.Linear), {
+                    CFrame = mainRoot.CFrame
+                }):Play()
+                                
+                task.wait(tweenTime)
+            end
         end
     end
 end

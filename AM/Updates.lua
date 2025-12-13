@@ -1,21 +1,26 @@
 return [[
-╔══════════════════════════════════════════════════╗
-║                  APEX CLIENT                     ║
-║                   Adopt Me                       ║
-╚══════════════════════════════════════════════════╝
+┏━━━━━━━━━━━━━━━━━━━━┓
+┃       v2.1.4       ┃
+┗━━━━━━━━━━━━━━━━━━━━┛
 
-📅 Last Updated: 15.12.2023
-🎮 Version: Special Winter Edition v0.1.0
-👤 Developer: @sadlunov
+🔹 [ADDED]
+   ├─ Knife auto-equip
+   ├─ Custom kill messages  
+   └─ ESP color options
 
-══════════════════════════════════════════════════════
+🔸 [FIXED]
+   ├─ Server change crash
+   └─ ESP for new players
 
-[+] ADDED New knife auto-equip system
-[+] ADDED Custom kill message feature
-[+] ADDED Option to change ESP colors
-[!] FIXED Crash when changing servers
-[!] FIXED ESP not showing for new players
-[~] IMPROVED Auto-farm performance by 40%
-[~] IMPROVED UI responsiveness
-[-] REMOVED Deprecated teleport functions
+🔹 [IMPROVED]
+   ├─ Auto-farm +40%
+   └─ UI responsiveness
+
+🔸 [REMOVED]
+   └─ Old teleport system
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 Status: ✅ Fully Working
+🔒 Security: 🛡️ Undetected
+⚡ Performance: 🚀 Optimized
 ]]

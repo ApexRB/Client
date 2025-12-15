@@ -3,7 +3,7 @@ return [[
      [ADOPT ME] :: 13.12.2025     
 ═════════════════════════
 
-➕ [ADDED]
+🟢 [ADDED]
    ├─ Gingerbread Autofarm
    ├─ Auto Claim Function
    ├─ Autoplay Sleighball Game

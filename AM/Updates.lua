@@ -18,5 +18,5 @@ return [[
 
 ═════════════════════════
 
-📊 Status: ✅ Event-Ready
+📊 Status: ✅ Initial Beta
 🎄 Seasonal: Winter 2025 Only]]

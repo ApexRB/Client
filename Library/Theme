@@ -1,15 +1,15 @@
 return {
     Name = "MonokaiPro",
 
-    Accent = Color3.fromHex("#a9dc76"),
-    Dialog = Color3.fromHex("#1e1e1e"),
-    Outline = Color3.fromHex("#a9dc76"),
+    Accent = Color3.fromHex("#e88073"),
+    Dialog = Color3.fromHex("#eae8dc"),
+    Outline = Color3.fromHex("#e88073"),
 
-    Text = Color3.fromHex("#fcfcfa"),
-    Placeholder = Color3.fromHex("#6f6f6f"),
+    Text = Color3.fromHex("#8e8d89"),
+    Placeholder = Color3.fromHex("#8e8d89"),
 
-    Background = Color3.fromHex("#191622"),
+    Background = Color3.fromHex("#eae8dc"),
 
-    Button = Color3.fromHex("#a9dc76"),
-    Icon = Color3.fromHex("#a9dc76"),
+    Button = Color3.fromHex("#e88073"),
+    Icon = Color3.fromHex("#e88073"),
 }

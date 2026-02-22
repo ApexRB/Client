@@ -8,7 +8,7 @@ return {
     Text = Color3.fromHex("#fbf8ef"),
     Placeholder = Color3.fromHex("#fbf8ef"),
 
-    Background = Color3.fromHex("#32373d"),
+    Background = Color3.fromHex("#17191c"),
 
     Button = Color3.fromHex("#fd7a22"),
     Icon = Color3.fromHex("#fd7a22"),

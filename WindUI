@@ -1,4 +1,4 @@
--- 55
+-- 66
 
 local a={cache={}::any}do do local function __modImpl()local b=(cloneref or clonereference or function(b)return b end)
 
@@ -12767,28 +12767,29 @@ ImageTransparency=az,
 end
 end
 
-local function SyncHeight(aw)
-if not ak.Expandable then
-return
-end
+local function SyncHeight(ay, az)
+    UpdateTabsAlignment()
+    UpdateContentLayout()
 
-UpdateContentLayout()
+    local aA = d.Top.AbsoluteSize.Y
+    local aB = am.Opened and d.Content.AbsoluteSize.Y or 0
+    local aC = (aA + aB) / GetUIScale()
+    
+    if az and type(az) == "number" and az < 1 then
+        aC = aC * az
+    end
+    
+    local aD = UDim2.new(d.Size.X.Scale, d.Size.X.Offset, 0, aC)
 
-local ax=av.Top.AbsoluteSize.Y
-local ay=ak.Opened and av.Content.AbsoluteSize.Y or 0
-local az=(ax+ay)/GetUIScale()
+    if ay then
+        d.Size = aD
+    else
+        ao(d, am.Opened and 0.33 or 0.24, {
+            Size = aD,
+        }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+    end
 
-local aA=UDim2.new(av.Size.X.Scale,av.Size.X.Offset,0,az)
-
-if aw then
-av.Size=aA
-else
-ae(av,ak.Opened and 0.33 or 0.24,{
-Size=aA,
-},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-end
-
-av.HeaderDivider.Visible=ak.Opened and ak.Box and av.Content.AbsoluteSize.Y>0
+    d.HeaderDivider.Visible = am.Opened and am.Box and d.Content.AbsoluteSize.Y > 0
 end
 
 local function EnsureExpandable()
@@ -13773,15 +13774,20 @@ function am.SelectTab(g, h, j)
     l.UIElements.Content.Parent = am.UIElements.TabsContent
     SetTabState(l, "Selected", j)
 
-    -- Сначала на 75% (мгновенно)
-    SyncHeight(true, 0.75)
+    -- Получаем полную высоту
+    local aA = d.Top.AbsoluteSize.Y
+    local aB = am.Opened and d.Content.AbsoluteSize.Y or 0
+    local aC = (aA + aB) / GetUIScale()
     
-    -- Потом плавно до 100%
-    task.delay(0.1, function()
-        if am.SelectedTab == l then
-            SyncHeight(false, 1)
-        end
-    end)
+    -- Ставим 75% (без анимации)
+    d.Size = UDim2.new(d.Size.X.Scale, d.Size.X.Offset, 0, aC * 0.75)
+    
+    -- Потом анимируем до 100%
+    ao(d, 0.3, {
+        Size = UDim2.new(d.Size.X.Scale, d.Size.X.Offset, 0, aC)
+    }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+    
+    d.HeaderDivider.Visible = am.Opened and am.Box and d.Content.AbsoluteSize.Y > 0
     
     return l
 end

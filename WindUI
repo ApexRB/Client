@@ -1,3 +1,5 @@
+-- 55
+
 local a={cache={}::any}do do local function __modImpl()local b=(cloneref or clonereference or function(b)return b end)
 
 local d=b(game:GetService"ReplicatedStorage":WaitForChild("GetIcons",99999):InvokeServer())
@@ -12765,29 +12767,28 @@ ImageTransparency=az,
 end
 end
 
-local function SyncHeight(ay, az)
-    UpdateTabsAlignment()
-    UpdateContentLayout()
+local function SyncHeight(aw)
+if not ak.Expandable then
+return
+end
 
-    local aA = d.Top.AbsoluteSize.Y
-    local aB = am.Opened and d.Content.AbsoluteSize.Y or 0
-    local aC = (aA + aB) / GetUIScale()
-    
-    if az and az < 1 then
-        aC = aC * az
-    end
-    
-    local aD = UDim2.new(d.Size.X.Scale, d.Size.X.Offset, 0, aC)
+UpdateContentLayout()
 
-    if ay then
-        d.Size = aD
-    else
-        ao(d, am.Opened and 0.33 or 0.24, {
-            Size = aD,
-        }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
-    end
+local ax=av.Top.AbsoluteSize.Y
+local ay=ak.Opened and av.Content.AbsoluteSize.Y or 0
+local az=(ax+ay)/GetUIScale()
 
-    d.HeaderDivider.Visible = am.Opened and am.Box and d.Content.AbsoluteSize.Y > 0
+local aA=UDim2.new(av.Size.X.Scale,av.Size.X.Offset,0,az)
+
+if aw then
+av.Size=aA
+else
+ae(av,ak.Opened and 0.33 or 0.24,{
+Size=aA,
+},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+end
+
+av.HeaderDivider.Visible=ak.Opened and ak.Box and av.Content.AbsoluteSize.Y>0
 end
 
 local function EnsureExpandable()
@@ -13497,29 +13498,29 @@ ImageTransparency=l,
 end
 end
 
-local function SyncHeight(ay, az)
-    UpdateTabsAlignment()
-    UpdateContentLayout()
+local function SyncHeight(g)
+if not am.Expandable then
+return
+end
 
-    local aA = d.Top.AbsoluteSize.Y
-    local aB = am.Opened and d.Content.AbsoluteSize.Y or 0
-    local aC = (aA + aB) / GetUIScale()
-    
-    if az and az < 1 then
-        aC = aC * az
-    end
-    
-    local aD = UDim2.new(d.Size.X.Scale, d.Size.X.Offset, 0, aC)
+UpdateTabsAlignment()
+UpdateContentLayout()
 
-    if ay then
-        d.Size = aD
-    else
-        ao(d, am.Opened and 0.33 or 0.24, {
-            Size = aD,
-        }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
-    end
+local h=d.Top.AbsoluteSize.Y
+local j=am.Opened and d.Content.AbsoluteSize.Y or 0
+local l=(h+j)/GetUIScale()
 
-    d.HeaderDivider.Visible = am.Opened and am.Box and d.Content.AbsoluteSize.Y > 0
+local m=UDim2.new(d.Size.X.Scale,d.Size.X.Offset,0,l)
+
+if g then
+d.Size=m
+else
+ae(d,am.Opened and 0.33 or 0.24,{
+Size=m,
+},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+end
+
+d.HeaderDivider.Visible=am.Opened and am.Box and d.Content.AbsoluteSize.Y>0
 end
 
 local function EnsureExpandable()
@@ -13752,37 +13753,29 @@ UpdateWindowScrollLock()
 return am
 end
 
-function am.SelectTab(g, h, j)
-    local l = ResolveTab(h)
-    if not l then
-        return nil
-    end
+function am.SelectTab(g,h,j)
+local l=ResolveTab(h)
+if not l then
+return nil
+end
 
-    if am.SelectedTab == l then
-        return l
-    end
+if am.SelectedTab==l then
+return l
+end
 
-    if am.SelectedTab and am.SelectedTab.UIElements.Content then
-        am.SelectedTab.UIElements.Content.Parent = nil
-        SetTabState(am.SelectedTab, "Default", j)
-    end
+if am.SelectedTab and am.SelectedTab.UIElements.Content then
+am.SelectedTab.UIElements.Content.Parent=nil
+SetTabState(am.SelectedTab,"Default",j)
+end
 
-    am.SelectedTab = l
-    am.SelectedTabIndex = l.Index
-    l.UIElements.Content.Parent = am.UIElements.TabsContent
-    SetTabState(l, "Selected", j)
+am.SelectedTab=l
+am.SelectedTabIndex=l.Index
 
-    -- Сначала на 75% (мгновенно)
-    SyncHeight(true, 0.75)
-    
-    -- Потом плавно до 100%
-    task.delay(0.1, function()
-        if am.SelectedTab == l then
-            SyncHeight(false, 1)
-        end
-    end)
-    
-    return l
+l.UIElements.Content.Parent=am.UIElements.TabsContent
+SetTabState(l,"Selected",j)
+
+SyncHeight(j)
+return l
 end
 
 function am.GetSelectedTab(g)

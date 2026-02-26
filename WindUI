@@ -1,11 +1,3 @@
--- WindUI Boreal
--- Version: v0.0.1
--- BuildDate: 2026-02-23
--- Description: Roblox UI Library for scripts
--- Repository: https://github.com/orialdev/WindUI-Boreal
--- Discord: http://discord.gg/B3dEqP2EX6
--- License: MIT
-
 local a={cache={}::any}do do local function __modImpl()local b=(cloneref or clonereference or function(b)return b end)
 
 local d=b(game:GetService"ReplicatedStorage":WaitForChild("GetIcons",99999):InvokeServer())
@@ -7203,17 +7195,17 @@ Scale=1,
 local aq
 local ar
 
-local as=20
+local as=30
 local at=ap.Size.X.Offset
 
 function al.Set(au,av,aw,ax)
 if not ax then
 if av then
-ad(ap.Frame,0.15,{
+ad(ap.Frame,0.2,{
 Position=UDim2.new(0,at-as-2,0.5,0),
 },Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 else
-ad(ap.Frame,0.15,{
+ad(ap.Frame,0.2,{
 Position=UDim2.new(0,2,0.5,0),
 },Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
 end
@@ -19423,6 +19415,7 @@ ad.Window=aB
 if av.Acrylic then
 ap.init()
 end
+
 
 return aB
 end

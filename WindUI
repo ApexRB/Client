@@ -1,3 +1,5 @@
+-- 27
+
 local a={cache={}::any}do do local function __modImpl()local b=(cloneref or clonereference or function(b)return b end)
 
 local d=b(game:GetService"ReplicatedStorage":WaitForChild("GetIcons",99999):InvokeServer())
@@ -13102,7 +13104,7 @@ or(al.Window.ElementConfig.UIPadding+(al.Window.ModernLayout and 4 or 2)),
 HeaderPaddingY=al.HeaderPaddingY
 or math.max(math.floor((al.Window.ElementConfig.UIPadding+(al.Window.ModernLayout and 4 or 0))*0.65),6),
 
-TabGap=al.TabGap or 6,
+TabGap=al.TabGap or 8,
 TabPaddingX=al.TabPaddingX or 12,
 TabPaddingY=al.TabPaddingY or 8,
 TabTextSize=al.TabTextSize or 15,
@@ -19415,6 +19417,17 @@ ad.Window=aB
 if av.Acrylic then
 ap.init()
 end
+
+
+
+
+
+
+
+
+
+
+
 
 
 return aB

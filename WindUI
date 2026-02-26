@@ -1,5 +1,3 @@
--- 66
-
 local a={cache={}::any}do do local function __modImpl()local b=(cloneref or clonereference or function(b)return b end)
 
 local d=b(game:GetService"ReplicatedStorage":WaitForChild("GetIcons",99999):InvokeServer())
@@ -12775,7 +12773,7 @@ local function SyncHeight(ay, az)
     local aB = am.Opened and d.Content.AbsoluteSize.Y or 0
     local aC = (aA + aB) / GetUIScale()
     
-    if az and type(az) == "number" and az < 1 then
+    if az and az < 1 then
         aC = aC * az
     end
     
@@ -13774,20 +13772,15 @@ function am.SelectTab(g, h, j)
     l.UIElements.Content.Parent = am.UIElements.TabsContent
     SetTabState(l, "Selected", j)
 
-    -- Получаем полную высоту
-    local aA = d.Top.AbsoluteSize.Y
-    local aB = am.Opened and d.Content.AbsoluteSize.Y or 0
-    local aC = (aA + aB) / GetUIScale()
+    -- Сначала на 75% (мгновенно)
+    SyncHeight(true, 0.75)
     
-    -- Ставим 75% (без анимации)
-    d.Size = UDim2.new(d.Size.X.Scale, d.Size.X.Offset, 0, aC * 0.75)
-    
-    -- Потом анимируем до 100%
-    ao(d, 0.3, {
-        Size = UDim2.new(d.Size.X.Scale, d.Size.X.Offset, 0, aC)
-    }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
-    
-    d.HeaderDivider.Visible = am.Opened and am.Box and d.Content.AbsoluteSize.Y > 0
+    -- Потом плавно до 100%
+    task.delay(0.1, function()
+        if am.SelectedTab == l then
+            SyncHeight(false, 1)
+        end
+    end)
     
     return l
 end

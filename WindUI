@@ -1,4 +1,4 @@
--- 35
+-- WindUI 
 
 local a={cache={}::any}do do local function __modImpl()local b=(cloneref or clonereference or function(b)return b end)
 
@@ -13754,48 +13754,28 @@ return am
 end
 
 function am.SelectTab(g,h,j)
-    local l = ResolveTab(h)
-    if not l then
-        return nil
-    end
+local l=ResolveTab(h)
+if not l then
+return nil
+end
 
-    if am.SelectedTab == l then
-        return l
-    end
+if am.SelectedTab==l then
+return l
+end
 
-    -- Сохраняем текущую высоту для анимации
-    local contentFrame = am.UIElements.TabsContent
-    local currentHeight = contentFrame.AbsoluteSize.Y
-    
-    -- Если есть предыдущий выбранный таб, скрываем его контент
-    if am.SelectedTab and am.SelectedTab.UIElements.Content then
-        am.SelectedTab.UIElements.Content.Parent = nil
-        SetTabState(am.SelectedTab,"Default",j)
-    end
+if am.SelectedTab and am.SelectedTab.UIElements.Content then
+am.SelectedTab.UIElements.Content.Parent=nil
+SetTabState(am.SelectedTab,"Default",j)
+end
 
-    -- Устанавливаем новый контент
-    l.UIElements.Content.Parent = contentFrame
-    SetTabState(l,"Selected",j)
-    
-    -- Получаем целевую высоту нового контента
-    local targetHeight = l.UIElements.Content.AbsoluteSize.Y
-    
-    -- Если высота изменилась, анимируем
-    if math.abs(currentHeight - targetHeight) > 1 then
-        -- Сначала устанавливаем высоту на 85% от целевой
-        contentFrame.Size = UDim2.new(1, 0, 0, targetHeight * 0.85)
-        
-        -- Затем плавно анимируем до полной высоты
-        local tween = game:GetService("TweenService"):Create(
-            contentFrame,
-            TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-            {Size = UDim2.new(1, 0, 0, targetHeight)}
-        )
-        tween:Play()
-    end
+am.SelectedTab=l
+am.SelectedTabIndex=l.Index
 
-    SyncHeight(j)
-    return l
+l.UIElements.Content.Parent=am.UIElements.TabsContent
+SetTabState(l,"Selected",j)
+
+SyncHeight(j)
+return l
 end
 
 function am.GetSelectedTab(g)

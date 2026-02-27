@@ -13524,8 +13524,8 @@ local function SyncHeight(animate)
         local duration = 0.35
 
         if am.TabSwitchAnimation and d.Size == m then
-            duration = 0.6
-            d.Size = UDim2.new(d.Size.X.Scale, d.Size.X.Offset, 0, l * 0.75)
+            duration = 0.5
+            d.Size = UDim2.new(d.Size.X.Scale, d.Size.X.Offset, 0, l * 0.6)
         end
         
         ae(d, duration, {

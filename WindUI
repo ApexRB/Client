@@ -1,4 +1,9 @@
-
+-- WindUI Boreal
+-- Version: v0.0.1
+-- BuildDate: 2026-02-23
+-- Description: Roblox UI Library for scripts
+-- Repository: https://github.com/orialdev/WindUI-Boreal
+-- Discord: http://discord.gg/B3dEqP2EX6
 -- License: MIT
 
 local a={cache={}::any}do do local function __modImpl()local b=(cloneref or clonereference or function(b)return b end)
@@ -13519,7 +13524,8 @@ local function SyncHeight(animate)
         local duration = 0.35
 
         if am.TabSwitchAnimation and d.Size == m then
-            d.Size = UDim2.new(d.Size.X.Scale, d.Size.X.Offset, 0, l * 0.9)
+            duration = 0.6
+            d.Size = UDim2.new(d.Size.X.Scale, d.Size.X.Offset, 0, l * 0.75)
         end
         
         ae(d, duration, {

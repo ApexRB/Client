@@ -1,4 +1,4 @@
--- WindUI 
+-- WindUI sq5wik
 
 local a={cache={}::any}do do local function __modImpl()local b=(cloneref or clonereference or function(b)return b end)
 
@@ -13774,7 +13774,7 @@ am.SelectedTabIndex=l.Index
 l.UIElements.Content.Parent=am.UIElements.TabsContent
 SetTabState(l,"Selected",j)
 
-SyncHeight(j)
+SyncHeight()
 return l
 end
 

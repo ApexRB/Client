@@ -1,4 +1,10 @@
 -- WindUI Boreal
+-- Version: v0.0.1
+-- BuildDate: 2026-02-23
+-- Description: Roblox UI Library for scripts
+-- Repository: https://github.com/orialdev/WindUI-Boreal
+-- Discord: http://discord.gg/B3dEqP2EX6
+-- License: MIT
 
 local a={cache={}::any}do do local function __modImpl()local b=(cloneref or clonereference or function(b)return b end)
 
@@ -13569,86 +13575,100 @@ end
 return nil
 end
 
-local function SetTabState(g,h,j)
-if not g or not g.UIElements or not g.UIElements.Button then
-return
-end
+local function SetTabState(g, h, j)
+    if not g or not g.UIElements or not g.UIElements.Button then
+        return
+    end
 
-local l
-local m
-local p
-local r
-local u
+    local l  -- прозрачность фона
+    local m  -- прозрачность обводки
+    local p  -- прозрачность текста заголовка
+    local r  -- прозрачность описания
+    local u  -- прозрачность иконки
+    local iconColor  -- цвет иконки
 
-if h=="Selected"then
-l=ResolveTransparency("TabBackgroundActiveTransparency",0.93)
-m=ResolveTransparency("TabBorderTransparencyActive",0.75)
-p=0.05
-r=0.35
-u=0
-elseif h=="Hover"then
-l=ResolveTransparency("TabBackgroundHoverTransparency",0.97)
-m=ResolveTransparency("TabBorderTransparency",1)
-p=0.25
-r=0.5
-u=0.2
-else
-l=1
-m=1
-p=0.4
-r=0.6
-u=0.35
-end
+    if h == "Selected" then
+        l = ResolveTransparency("TabBackgroundActiveTransparency", 0.93)
+        m = ResolveTransparency("TabBorderTransparencyActive", 0.75)
+        p = 0.05
+        r = 0.35
+        u = 0
+        iconColor = aa.GetThemeProperty("Icon", aa.Theme)
+    elseif h == "Hover" then
+        l = ResolveTransparency("TabBackgroundHoverTransparency", 0.97)
+        m = ResolveTransparency("TabBorderTransparency", 1)
+        p = 0.25
+        r = 0.5
+        u = 0.2
+        iconColor = Color3.fromHex"#FFFFFF"
+    else  -- Default
+        l = 1
+        m = 1
+        p = 0.4
+        r = 0.6
+        u = 0.35
+        iconColor = Color3.fromHex"#FFFFFF"
+    end
 
-local v=g.UIElements.Button
-local x=g.UIElements.Outline
-local z=g.UIElements.Title
-local A=g.UIElements.Desc
-local B=g.UIElements.Icon and g.UIElements.Icon.ImageLabel
+    local v = g.UIElements.Button
+    local x = g.UIElements.Outline
+    local z = g.UIElements.Title
+    local A = g.UIElements.Desc
+    local B = g.UIElements.Icon and g.UIElements.Icon.ImageLabel
 
-if j then
-v.ImageTransparency=l
-if x then
-x.ImageTransparency=m
-end
-if z then
-z.TextTransparency=p
-end
-if A then
-A.TextTransparency=r
-end
-if B then
-B.ImageTransparency=u
-end
-else
-ae(v,0.1,{
-ImageTransparency=l,
-},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+    if j then
+        v.ImageTransparency = l
+        if x then
+            x.ImageTransparency = m
+        end
+        if z then
+            z.TextTransparency = p
+        end
+        if A then
+            A.TextTransparency = r
+        end
+        if B then
+            B.ImageTransparency = u
+            B.ImageColor3 = iconColor
+        end
+    else
+        ae(v, 0.1, {
+            ImageTransparency = l,
+        }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
 
-if x then
-ae(x,0.1,{
-ImageTransparency=m,
-},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-end
+        if x then
+            ae(x, 0.1, {
+                ImageTransparency = m,
+            }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+        end
 
-if z then
-ae(z,0.1,{
-TextTransparency=p,
-},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-end
+        if z then
+            ae(z, 0.1, {
+                TextTransparency = p,
+            }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+        end
 
-if A then
-ae(A,0.1,{
-TextTransparency=r,
-},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-end
+        if A then
+            ae(A, 0.1, {
+                TextTransparency = r,
+            }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out):Play()
+        end
 
-if B then
-ae(B,0.1,{
-ImageTransparency=u,
-},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-end
-end
+        if B then
+            local tween1 = ae(B, 0.1, {
+                ImageTransparency = u,
+            }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+            
+            local tween2 = game:GetService("TweenService"):Create(
+                B,
+                TweenInfo.new(0.1, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+                {ImageColor3 = iconColor}
+            )
+            
+            tween1:Play()
+            tween2:Play()
+        end
+    end
 end
 
 local function SetTabElementsLocked(g)
@@ -13766,7 +13786,6 @@ function am.SelectTab(g, h, j)
         return l
     end
 
-    -- Устанавливаем флаг, что это переключение таба
     am.TabSwitchAnimation = true
 
     if am.SelectedTab and am.SelectedTab.UIElements.Content then
@@ -13780,7 +13799,6 @@ function am.SelectTab(g, h, j)
     l.UIElements.Content.Parent = am.UIElements.TabsContent
     SetTabState(l,"Selected",j)
 
-    -- Вызываем SyncHeight с анимацией (параметр по умолчанию = true)
     SyncHeight()
     
     return l

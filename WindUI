@@ -1,4 +1,10 @@
--- WindUI sq5wik
+-- WindUI Boreal
+-- Version: v0.0.1
+-- BuildDate: 2026-02-23
+-- Description: Roblox UI Library for scripts
+-- Repository: https://github.com/orialdev/WindUI-Boreal
+-- Discord: http://discord.gg/B3dEqP2EX6
+-- License: MIT
 
 local a={cache={}::any}do do local function __modImpl()local b=(cloneref or clonereference or function(b)return b end)
 
@@ -13498,29 +13504,40 @@ ImageTransparency=l,
 end
 end
 
-local function SyncHeight(g)
-if not am.Expandable then
-return
-end
+local function SyncHeight(animate)
+    if not am.Expandable then
+        return
+    end
 
-UpdateTabsAlignment()
-UpdateContentLayout()
+    UpdateTabsAlignment()
+    UpdateContentLayout()
 
-local h=d.Top.AbsoluteSize.Y
-local j=am.Opened and d.Content.AbsoluteSize.Y or 0
-local l=(h+j)/GetUIScale()
+    local h = d.Top.AbsoluteSize.Y
+    local j = am.Opened and d.Content.AbsoluteSize.Y or 0
+    local l = (h + j) / GetUIScale()
 
-local m=UDim2.new(d.Size.X.Scale,d.Size.X.Offset,0,l)
+    local m = UDim2.new(d.Size.X.Scale, d.Size.X.Offset, 0, l)
 
-if g then
-d.Size=m
-else
-ae(d,am.Opened and 0.33 or 0.24,{
-Size=m,
-},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
-end
+    if animate == false then
+        d.Size = m  -- Мгновенное изменение
+    else
+        -- Плавная анимация (по умолчанию)
+        local duration = am.Opened and 0.33 or 0.24
+        -- Если это переключение таба, используем специальную анимацию
+        if am.TabSwitchAnimation then
+            duration = 0.25
+            -- Сначала устанавливаем высоту на 85%
+            d.Size = UDim2.new(d.Size.X.Scale, d.Size.X.Offset, 0, l * 0.85)
+            task.wait(0.05)
+        end
+        
+        ae(d, duration, {
+            Size = m,
+        }, Enum.EasingStyle.Quad, Enum.EasingDirection.Out):Play()
+        am.TabSwitchAnimation = false
+    end
 
-d.HeaderDivider.Visible=am.Opened and am.Box and d.Content.AbsoluteSize.Y>0
+    d.HeaderDivider.Visible = am.Opened and am.Box and d.Content.AbsoluteSize.Y > 0
 end
 
 local function EnsureExpandable()
@@ -13753,29 +13770,34 @@ UpdateWindowScrollLock()
 return am
 end
 
-function am.SelectTab(g,h,j)
-local l=ResolveTab(h)
-if not l then
-return nil
-end
+function am.SelectTab(g, h, j)
+    local l = ResolveTab(h)
+    if not l then
+        return nil
+    end
 
-if am.SelectedTab==l then
-return l
-end
+    if am.SelectedTab == l then
+        return l
+    end
 
-if am.SelectedTab and am.SelectedTab.UIElements.Content then
-am.SelectedTab.UIElements.Content.Parent=nil
-SetTabState(am.SelectedTab,"Default",j)
-end
+    -- Устанавливаем флаг, что это переключение таба
+    am.TabSwitchAnimation = true
 
-am.SelectedTab=l
-am.SelectedTabIndex=l.Index
+    if am.SelectedTab and am.SelectedTab.UIElements.Content then
+        am.SelectedTab.UIElements.Content.Parent = nil
+        SetTabState(am.SelectedTab,"Default",j)
+    end
 
-l.UIElements.Content.Parent=am.UIElements.TabsContent
-SetTabState(l,"Selected",j)
+    am.SelectedTab = l
+    am.SelectedTabIndex = l.Index
 
-SyncHeight()
-return l
+    l.UIElements.Content.Parent = am.UIElements.TabsContent
+    SetTabState(l,"Selected",j)
+
+    -- Вызываем SyncHeight с анимацией (параметр по умолчанию = true)
+    SyncHeight()
+    
+    return l
 end
 
 function am.GetSelectedTab(g)

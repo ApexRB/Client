@@ -14,7 +14,8 @@ getgenv().WindUI = loadstring(game:HttpGet(WindString))()
 getgenv().Window = WindUI:CreateWindow({
     Title = "ApexClient",
     Author = "t.me/apexClientRB",
-    Icon = "rbxassetid://92142935801281",
+	Icon = "rbxassetid://89483335047361",
+    --Icon = "rbxassetid://92142935801281",
 
     Folder = "apexclient",
     Size = UDim2.fromOffset(600, 450),

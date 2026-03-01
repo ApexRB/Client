@@ -235,10 +235,7 @@ local function Kill(Player)
 
     if table.find(__gameInfo.Whitelist, Player.Name) then return end
 
-    local Events = Knife:FindFirstChild('Events')
-    if not Events then return end
-
-    Events.HandleTouched:FireServer(game.Workspace[Player.Name].UpperTorso)
+    kill, hidden for show you
 end
 
 local function Throw(Knife, Player)
@@ -249,10 +246,7 @@ local function Throw(Knife, Player)
 
     if table.find(__gameInfo.Whitelist, Player.Name) then return end
 
-    local Events = Knife:FindFirstChild('Events')
-    if not Events then return end
-
-    Events.KnifeThrown:FireServer(Knife.Handle.CFrame, GetRoot(Player, true).CFrame)
+    throw function, hidden
 end
 
 local function GetNearest()
@@ -347,49 +341,7 @@ function KillAll()
     end
 end
 
-function ShootMurder(Teleport)
-    if __gameInfo.Murder.Name == nil then return end
-    if CheckItem('Gun') == false then return end
-    
-    local Gun = GrabItem('Gun')
-    if not Gun then return end
-
-    local Remote = Gun:FindFirstChild("Shoot")
-    if not Remote then return end
-    
-    local Murderer = Players:FindFirstChild(__gameInfo.Murder.Name)
-    if not Murderer or not Murderer.Character then return end
-    
-    local MurdRoot = Murderer.Character:FindFirstChild('HumanoidRootPart')
-    if not MurdRoot then return end
-
-    local MyRoot = GetRoot()
-    if not MyRoot then return end
-    
-    local OldPosition = MyRoot.CFrame
-    
-    if Teleport then
-        MyRoot.CFrame = MurdRoot.CFrame * CFrame.new(0, 0, 5)
-        task.wait(0.1)
-    end
-
-    local Position = Predict(MurdRoot)
-    if not Position then return end
-
-    pcall(function()
-        Remote:FireServer(Gun:GetPivot(), CFrame.new(Position))
-    end)
-
-    if Teleport then
-        task.spawn(function()
-            task.wait(0.2)
-            local Root = GetRoot()
-            if Root then
-                Root.CFrame = OldPosition
-            end
-        end)
-    end
-end
+shoot murder function, hidden for show
 
 function ChangeMod(Type, Value)
     if not Speaker then return end
@@ -472,8 +424,7 @@ __gameInfo.Connections.InfoUpdaters = RunService.RenderStepped:Connect(function(
 
         local StartPosition = Vector2.new(Workspace.CurrentCamera.ViewportSize.X / 2, Workspace.CurrentCamera.ViewportSize.Y)
 
-        local TargetPosition, TargetVisible = Workspace.CurrentCamera:WorldToViewportPoint(HumRoot.Position)
-        local NamePosition, NameVisible = Workspace.CurrentCamera:WorldToViewportPoint(HumRoot.Position + Vector3.new(0, 4, 0))
+        name and target position, hidden
 
         Line.From = StartPosition
         Line.To = Vector2.new(TargetPosition.X, TargetPosition.Y)
@@ -542,16 +493,7 @@ end)
 
 __gameInfo.Connections.MainBeat = RunService.Heartbeat:Connect(function()
     -- GameInfo Roles Selector --
-    Data = ReplicatedStorage:FindFirstChild("GetPlayerData", true):InvokeServer()
-    for __player, player in pairs(Data) do
-        if player.Role == "Murderer" then
-            __gameInfo.Murder.Name = __player
-        elseif player.Role == 'Sheriff'then
-            __gameInfo.Sheriff.Name = __player
-        elseif player.Role == 'Hero'then
-            __gameInfo.Hero.Name = __player
-        end
-    end
+    player role selector from invokeServer, hidden
 
     -- Highlight Updater --
     for __player, player in pairs(Players:GetChildren()) do

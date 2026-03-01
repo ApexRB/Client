@@ -8,8 +8,7 @@ return [[
    └─ Random
 
 📢 [ANNOUNCEMENT]
-   └─ ⚠️ Love you all for using
-   our script!) <3
+   └─ ⚠️ кака бяка
 
 ════════════════════════
 

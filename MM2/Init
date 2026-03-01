@@ -1,1 +1,1313 @@
-print('v3')
+loadstring(game:HttpGet('https://raw.githubusercontent.com/ApexRB/Client/refs/heads/main/Loader.lua'))()
+
+local VirtualUser = game:GetService('VirtualUser')
+local VirtualInput = game:GetService('VirtualInputManager')
+local RunService = game:GetService('RunService')
+local Players = game:GetService('Players')
+local ReplicatedStorage = game:GetService('ReplicatedStorage')
+local Speaker = Players.LocalPlayer
+
+local __gameInfo = {
+    IconsType = '-bold',
+    Connections = {},
+    Dropdowns = {},
+    Tracers = {},
+    Names = {},
+
+    AntiFling = {'HumanoidRootPart', 'UpperTorso', 'LowerTorso'},
+    AllEmotes = {'sit', 'ninja', 'dab', 'floss', 'zen', 'zombie', 'headless'},
+    Whitelist = {},
+
+    Data = nil,
+    Murder = {
+        Name = nil,
+        Highlight = false,
+        Tracers = false,
+        Names = false,
+        Color = Color3.fromRGB(255, 20, 20)
+    },
+    Sheriff = {
+        Name = nil,
+        Highlight = false,
+        Tracers = false,
+        Names = false,
+        Color = Color3.fromRGB(20, 20, 255)
+    },
+    Hero = {
+        Name = nil,
+        Highlight = false,
+        Tracers = false,
+        Names = false,
+        Color = Color3.fromRGB(255, 255, 20)
+    },
+    Innocent = {
+        Highlight = false,
+        Tracers = false,
+        Names = false,
+        Color = Color3.fromRGB(0, 255, 0)
+    },
+
+    Player = {
+        Teleport = nil,
+        Emote = nil,
+        WalkSpeed = 16,
+        JumpPower = 50,
+    },
+}
+
+-- // MAIN USABLE FUNCTIONS // --
+local function GetRoot(Character, __N)
+    if __N ~= nil then
+        if not Character then return end
+    end
+
+    Character = Character or Speaker.Character
+    if not Character then return end
+
+    local HumRoot = Character:FindFirstChild('HumanoidRootPart')
+    if not HumRoot then return end
+
+    return HumRoot
+end
+
+local function GetHum(Character, __N)
+    if __N ~= nil then
+        if not Character then return end
+    end
+
+    Character = Character or Speaker.Character
+    if not Character then return end
+
+    local Hum = Character:FindFirstChild('Humanoid')
+    if not Hum then return end
+
+    return Hum
+end
+
+local function GetMap()
+    local map
+
+    for _, model in pairs(Workspace:GetChildren()) do
+		if model:IsA('Model') and model:GetAttribute("MapID") then
+			map = model
+		end
+	end
+
+    return map
+end
+
+local function CheckItem(ItemName)
+    if Speaker.Backpack:FindFirstChild(ItemName) then
+        return true
+    elseif Speaker.Character:FindFirstChild(ItemName) then
+        return true
+    end
+    return false
+end
+
+local function GrabItem(ItemName)
+    if Speaker.Backpack:FindFirstChild(ItemName) then
+        Speaker.Backpack[ItemName].Parent = Speaker.Character
+    end
+
+    return Speaker.Character[ItemName]
+end
+
+local function IsAlive(Player)
+    if not Player then return false end
+
+	for i, v in pairs(Data) do
+		if Player.Name == i then
+			if not v.Killed and not v.Dead then
+				return true
+			else
+				return false
+			end
+		end
+	end
+end
+
+local function GetAvatar(Player)
+    local HeadShot, IsReady = Players:GetUserThumbnailAsync(Player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48)
+
+    return HeadShot
+end
+
+local function UpdateDropdowns()
+    local list = {}
+
+    for __player, player in pairs(Players:GetChildren()) do
+        if player ~= Speaker then
+            local PlayerTable = {
+                Title = player.Name,
+                Icon = GetAvatar(player)
+            }
+            table.insert(list, PlayerTable)
+        end
+    end
+
+    for __Dropdown, Dropdown in pairs(__gameInfo.Dropdowns) do
+        Dropdown:Refresh(list)
+    end
+end
+
+local function CreateHighlight(Player, IsDestroy)
+    if not Player or not Player.Character then return end
+    
+    if IsDestroy then
+        if Player.Character:FindFirstChildOfClass('Highlight') then
+            Player.Character.Highlight:Destroy()
+        end
+    else
+        if not Player.Character:FindFirstChildOfClass('Highlight') then
+            local Highlight = Instance.new('Highlight')
+            Highlight.Parent = Player.Character
+            return Highlight
+        end
+        return Player.Character:FindFirstChildOfClass('Highlight')
+    end
+end
+
+local function Predict(Part)
+    local Hum = GetHum(Part.Parent)
+
+    if not Part or not Hum then return end
+        
+    local Velocity = Part.AssemblyLinearVelocity
+    local MoveDirection = Hum.MoveDirection
+
+    local Ping = Speaker:GetNetworkPing()
+    local Offset = 3
+        
+    local PredictedPos = Part.Position 
+        + Velocity * Ping 
+        + MoveDirection * Offset * (1 + Ping * 2)
+        + Vector3.new(0, Part.Size.Y * 0.25, 0)
+        
+    return PredictedPos
+end
+
+local function CreateTracer(Player)
+    __gameInfo.Tracers[Player] = Drawing.new("Line")
+    __gameInfo.Tracers[Player].Thickness = 2
+end
+
+local function CreateName(Player)
+    __gameInfo.Names[Player] = Drawing.new("Text")
+    __gameInfo.Names[Player].Size = 9
+    __gameInfo.Names[Player].Center = true
+    __gameInfo.Names[Player].Outline = true
+    __gameInfo.Names[Player].Font = 1
+end
+
+local function Raycast(spawnModel, spawnPart)
+    if not spawnModel or not spawnPart then return end
+
+    local raisedCFrame = spawnPart.CFrame + Vector3.new(0, 350, 0)
+    local raisedBottomCFrame = raisedCFrame + Vector3.new(0, -(spawnPart.Size.Y / 2), 0)
+
+    local raycastParams = RaycastParams.new()
+    raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+    raycastParams.FilterDescendantsInstances = {spawnModel}
+    raycastParams.IgnoreWater = true
+
+    local raycastResult = workspace:Raycast(
+        raisedBottomCFrame.Position + Vector3.new(0, 0.01, 0), 
+        Vector3.new(0, -2000, 0), 
+        raycastParams
+    )
+
+    local stopPos
+    if raycastResult then
+        local hitPos = raycastResult.Position
+        stopPos = raycastResult.Position
+    else
+        stopPos = Vector3.new(spawnPart.Position.X, spawnPart.Position.Y - 1000, spawnPart.Position.Z)
+    end
+    return stopPos
+end
+
+local function Kill(Player)
+    if Player == Speaker then return end
+
+    if not Player or not Player.Character then return end
+    if not IsAlive(Player) then return end
+
+    if table.find(__gameInfo.Whitelist, Player.Name) then return end
+
+    local Events = Knife:FindFirstChild('Events')
+    if not Events then return end
+
+    Events.HandleTouched:FireServer(game.Workspace[Player.Name].UpperTorso)
+end
+
+local function Throw(Knife, Player)
+    if Player == Speaker then return end
+
+    if not Player or not Player.Character then return end
+    if not IsAlive(Player) then return end
+
+    if table.find(__gameInfo.Whitelist, Player.Name) then return end
+
+    local Events = Knife:FindFirstChild('Events')
+    if not Events then return end
+
+    Events.KnifeThrown:FireServer(Knife.Handle.CFrame, GetRoot(Player, true).CFrame)
+end
+
+local function GetNearest()
+    local HumRoot = GetRoot()
+    if not HumRoot then return end
+    
+    local NearestPlayer = nil
+    local NearestDistance = math.huge()
+    
+    for __player, player in ipairs(game.Players:GetPlayers()) do
+        if player == game.Players.LocalPlayer then continue end
+
+        local T_HumRoot = GetRoot(player, true)
+        if not T_HumRoot then continue end
+
+        local Distance = (HumRoot.Position - T_HumRoot.Position).Magnitude
+         if Distance < NearestDistance then
+            NearestPlayer = player
+            NearestDistance = Distance
+        end
+    end
+    
+    return nearestPlayer
+end
+---------------------------------
+
+function AntiFling(isDestroy)
+    if not isDestroy then
+        for __player, player in pairs(Players:GetChildren()) do
+            if player ~= Players.LocalPlayer and player.Character then
+                for __part, part in pairs(player.Character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = false
+                    end
+                end
+            end
+        end
+    else
+        for __player, player in pairs(Players:GetChildren()) do
+            if player ~= Players.LocalPlayer and player.Character then
+                for __part, part in pairs(player.Character:GetDescendants()) do
+                    if part:IsA("BasePart") and table.find(__gameInfo.AntiFling, part.Name) then
+                        part.CanCollide = true
+                    end
+                end
+            end
+        end
+    end
+end
+
+function AntiAFK(isDestroy)
+    if not isDestroy then
+        VirtualUser:CaptureController()
+		VirtualUser:ClickButton2(Vector2.new())
+    else
+        return
+    end
+end
+
+function GrabGun(isDestroy)
+    if not isDestroy then
+        if not IsAlive(Speaker) then return end
+        if __gameInfo.Murder.Name == Speaker.Name then return end
+
+        local Character = Speaker.Character
+        if not Character then return end
+
+        local Root = GetRoot()
+        if not Root then return end
+
+        local Map = GetMap()
+        if not Map then return end
+
+        local GunDrop = Map:FindFirstChild('GunDrop')
+        if not GunDrop then return end
+
+        GunDrop.CFrame = Root.CFrame
+    else
+        return
+    end
+end
+
+function KillAll()
+    if __gameInfo.Murder.Name ~= Speaker.Name then return end
+    if CheckItem('Knife') == false then return end
+    
+    local Knife = GrabItem('Knife')
+    if not Knife then return end
+
+    for __player, player in pairs(Players:GetChildren()) do
+        Kill(player)
+    end
+end
+
+function ShootMurder(Teleport)
+    if __gameInfo.Murder.Name == nil then return end
+    if CheckItem('Gun') == false then return end
+    
+    local Gun = GrabItem('Gun')
+    if not Gun then return end
+
+    local Remote = Gun:FindFirstChild("Shoot")
+    if not Remote then return end
+    
+    local Murderer = Players:FindFirstChild(__gameInfo.Murder.Name)
+    if not Murderer or not Murderer.Character then return end
+    
+    local MurdRoot = Murderer.Character:FindFirstChild('HumanoidRootPart')
+    if not MurdRoot then return end
+
+    local MyRoot = GetRoot()
+    if not MyRoot then return end
+    
+    local OldPosition = MyRoot.CFrame
+    
+    if Teleport then
+        MyRoot.CFrame = MurdRoot.CFrame * CFrame.new(0, 0, 5)
+        task.wait(0.1)
+    end
+
+    local Position = Predict(MurdRoot)
+    if not Position then return end
+
+    pcall(function()
+        Remote:FireServer(Gun:GetPivot(), CFrame.new(Position))
+    end)
+
+    if Teleport then
+        task.spawn(function()
+            task.wait(0.2)
+            local Root = GetRoot()
+            if Root then
+                Root.CFrame = OldPosition
+            end
+        end)
+    end
+end
+
+function ChangeMod(Type, Value)
+    if not Speaker then return end
+
+    local Hum = GetHum()
+    if not Hum then return end
+
+    if Type == 'ws' then
+        Hum.WalkSpeed = Value
+    elseif Type == 'jp' then
+        Hum.JumpPower = Value
+    end
+end
+
+function Teleport(Place)
+    if not Speaker then return end
+    
+    local HumRoot = GetRoot()
+    if not HumRoot then return end
+
+    if Place == 'map' then
+        local Map = GetMap()
+        if not Map then return end
+
+        local Spawns = Map:FindFirstChild('Spawns')
+        if not Spawns then return end
+
+        HumRoot.CFrame = Spawns:GetChildren()[math.random(1, #Spawns:GetChildren())].CFrame * CFrame.new(0, 3, 0)
+    elseif Place == 'lobby' then
+        local Spawns = Workspace:FindFirstChild('Lobby'):FindFirstChild('Spawns')
+        if not Spawns then return end
+        
+        HumRoot.CFrame = Spawns:GetChildren()[math.random(1, #Spawns:GetChildren())].CFrame * CFrame.new(0, 4, 0)
+    elseif Place == 'top' then
+        local Map = GetMap()
+        if not Map then return end
+
+        local Spawns = Map:FindFirstChild('Spawns')
+        if not Spawns then return end
+
+        for _, part in pairs(Map.Base:GetDescendants()) do
+            if part.Name == 'KillBrick' then
+                part:Destroy()
+            end
+        end
+
+        RandomSpawn = Spawns:GetChildren()[math.random(1, #Spawns:GetChildren())]
+        HumRoot.CFrame = CFrame.new(Raycast(Spawns, RandomSpawn)) * CFrame.new(0, 4, 0)
+    elseif Place == 'murderer' then
+        local MurdRoot = GetRoot(workspace:FindFirstChild(__gameInfo.Murder.Name))
+        if not MurdRoot then return end
+
+        HumRoot.CFrame = MurdRoot.CFrame * CFrame.new(0, 0, 4)
+    elseif Place == 'sheriff' then
+        local SheriffRoot = GetRoot(workspace:FindFirstChild(__gameInfo.Sheriff.Name))
+        if not SheriffRoot then return end
+
+        HumRoot.CFrame = SheriffRoot.CFrame * CFrame.new(0, 0, 4)
+    end
+end
+
+-- // EXTRA // --
+__gameInfo.Connections.InfoUpdaters = RunService.RenderStepped:Connect(function()
+    for __player, player in pairs(Players:GetChildren()) do
+        if not player then continue end
+        if player == Speaker then continue end
+
+        if not __gameInfo.Tracers[player] then CreateTracer(player) end
+        local Line = __gameInfo.Tracers[player]
+
+        if not __gameInfo.Names[player] then CreateName(player) end
+        local Name = __gameInfo.Names[player]
+
+        local HumRoot = GetRoot(player.Character, true)
+        if not HumRoot then
+            Name.Visible = false
+            Line.Visible = false
+            continue
+        end
+
+        local StartPosition = Vector2.new(Workspace.CurrentCamera.ViewportSize.X / 2, Workspace.CurrentCamera.ViewportSize.Y)
+
+        local TargetPosition, TargetVisible = Workspace.CurrentCamera:WorldToViewportPoint(HumRoot.Position)
+        local NamePosition, NameVisible = Workspace.CurrentCamera:WorldToViewportPoint(HumRoot.Position + Vector3.new(0, 4, 0))
+
+        Line.From = StartPosition
+        Line.To = Vector2.new(TargetPosition.X, TargetPosition.Y)
+        Name.Text = player.Name
+        Name.Position = Vector2.new(NamePosition.X, NamePosition.Y)
+
+        if player.Name == __gameInfo.Murder.Name and IsAlive(player) then
+            if __gameInfo.Murder.Names == true and NameVisible == true then
+                Name.Color = __gameInfo.Murder.Color
+                Name.Visible = true
+            else
+                Name.Visible = false
+            end
+
+            if __gameInfo.Murder.Tracers == true and TargetVisible == true then
+                Line.Color = __gameInfo.Murder.Color
+                Line.Visible = true
+            else
+                Line.Visible = false
+            end
+        elseif player and player.Name == __gameInfo.Sheriff.Name and IsAlive(player) then
+            if __gameInfo.Sheriff.Names == true and NameVisible == true then
+                Name.Color = __gameInfo.Sheriff.Color
+                Name.Visible = true
+            else
+                Name.Visible = false
+            end
+
+            if __gameInfo.Sheriff.Tracers == true and TargetVisible == true then
+                Line.Color = __gameInfo.Sheriff.Color
+                Line.Visible = true
+            else
+                Line.Visible = false
+            end
+        elseif player and player.Name == __gameInfo.Hero.Name and IsAlive(player) then
+            if __gameInfo.Hero.Names == true and NameVisible == true then
+                Name.Color = __gameInfo.Hero.Color
+                Name.Visible = true
+            else
+                Name.Visible = false
+            end
+
+            if __gameInfo.Hero.Tracers == true and TargetVisible == true then
+                Line.Color = __gameInfo.Hero.Color
+                Line.Visible = true
+            else
+                Line.Visible = false
+            end
+        else
+            if __gameInfo.Innocent.Names == true and NameVisible == true then
+                Name.Color = __gameInfo.Innocent.Color
+                Name.Visible = true
+            else
+                Name.Visible = false
+            end
+
+            if __gameInfo.Innocent.Tracers == true and TargetVisible == true and IsAlive(player) then
+                Line.Color = __gameInfo.Innocent.Color
+                Line.Visible = true
+            else
+                Line.Visible = false
+            end
+        end
+    end
+end)
+
+__gameInfo.Connections.MainBeat = RunService.Heartbeat:Connect(function()
+    -- GameInfo Roles Selector --
+    Data = ReplicatedStorage:FindFirstChild("GetPlayerData", true):InvokeServer()
+    for __player, player in pairs(Data) do
+        if player.Role == "Murderer" then
+            __gameInfo.Murder.Name = __player
+        elseif player.Role == 'Sheriff'then
+            __gameInfo.Sheriff.Name = __player
+        elseif player.Role == 'Hero'then
+            __gameInfo.Hero.Name = __player
+        end
+    end
+
+    -- Highlight Updater --
+    for __player, player in pairs(Players:GetChildren()) do
+        if player == Speaker then continue end
+
+        if player and player.Name == __gameInfo.Murder.Name and IsAlive(player) then
+
+            if __gameInfo.Murder.Highlight == false then
+                CreateHighlight(player, true)
+            else
+                local Highlight = CreateHighlight(player, false)
+                if not Highlight then return end
+                
+                Highlight.FillColor = __gameInfo.Murder.Color
+                Highlight.FillTransparency = 0.7
+                Highlight.OutlineColor = __gameInfo.Murder.Color
+            end
+
+        elseif player and player.Name == __gameInfo.Sheriff.Name and IsAlive(player) then
+
+            if __gameInfo.Sheriff.Highlight == false then
+                CreateHighlight(player, true)
+            else
+                local Highlight = CreateHighlight(player, false)
+                if not Highlight then return end
+                
+                Highlight.FillColor = __gameInfo.Sheriff.Color
+                Highlight.FillTransparency = 0.7
+                Highlight.OutlineColor = __gameInfo.Sheriff.Color
+            end
+
+        elseif player and player.Name == __gameInfo.Hero.Name and IsAlive(player) then
+
+            if __gameInfo.Hero.Highlight == false then
+                CreateHighlight(player, true)
+            else
+                local Highlight = CreateHighlight(player, false)
+                if not Highlight then return end
+                
+                Highlight.FillColor = __gameInfo.Hero.Color
+                Highlight.FillTransparency = 0.7
+                Highlight.OutlineColor = __gameInfo.Hero.Color
+            end
+
+        else
+            if __gameInfo.Innocent.Highlight == true then
+                local Highlight = CreateHighlight(player, false)
+                if not Highlight then return end
+
+                Highlight.FillColor = __gameInfo.Innocent.Color
+                Highlight.FillTransparency = 0.7
+                Highlight.OutlineColor = __gameInfo.Innocent.Color
+            else
+                CreateHighlight(player, true)
+            end
+        end
+    end
+end)
+
+Players.PlayerAdded:Connect(function(Player)
+    UpdateDropdowns()
+end)
+
+Players.PlayerRemoving:Connect(function(Player)
+    UpdateDropdowns()
+    if __gameInfo.Tracers[Player] then __gameInfo.Tracers[Player]:Remove() end
+    if __gameInfo.Names[Player] then __gameInfo.Names[Player]:Remove() end
+end)
+
+Window:OnDestroy(function()
+    for _, connection in __gameInfo.Connections do
+        if connection then
+            connection:Disconnect()
+		    connection = nil
+        end
+    end
+
+    getgenv().Configuration('save')
+    task.wait(1)
+    for _, player in Players:GetPlayers() do
+        if player then
+            CreateHighlight(player, true)
+            if __gameInfo.Tracers[player] then __gameInfo.Tracers[player]:Remove() end
+            if __gameInfo.Names[player] then __gameInfo.Names[player]:Remove() end
+        end
+    end
+    
+    ChangeMod('ws', 16)
+    ChangeMod('jp', 50)
+    AntiFling(true)
+    AntiAFK(true)
+end)
+
+-- // COMBAT TAB // --
+do
+    local CombatTab = Window:Tab({
+        Title = "Combat",
+        Icon = "solar:sledgehammer" .. __gameInfo.IconsType,
+    })
+
+     local CombatSection = CombatTab:MultiSection({
+        Title = "Combat",
+        Icon = "solar:clipboard-list" .. __gameInfo.IconsType,
+        Box = true,
+        BoxBorder = true,
+        Opened = true,
+    })
+
+    local MurdererSection = CombatSection:Tab({
+        Title = "Murderer",
+        Icon = "rbxassetid://135973897250158",
+        Selected = true,
+    })
+
+    local Whitelist = MurdererSection:Dropdown({
+        Title = "Whitelist",
+        Values = {'Loading...'},
+        Value = nil,
+        Multi = true,
+        AllowNone = true,
+        Callback = function(option)
+            table.insert(__gameInfo.Whitelist, option.Title)
+        end
+    })
+
+    table.insert(__gameInfo.Dropdowns, Whitelist)
+    UpdateDropdowns()
+
+    MurdererSection:Button({
+        Title = "Kill All",
+        Icon = "rbxassetid://73014736404183",
+        Callback = function()
+            KillAll()
+        end
+    })
+
+    MurdererSection:Space()
+
+    MurdererSection:ButtonKeybind({
+        Title = "Throw To Nearest Player",
+        Icon = "solar:people-nearby" .. __gameInfo.IconsType,
+        IconAlign = "Right",
+        Value = Enum.KeyCode.V,
+        CanChange = true,
+        Callback = function(trigger)
+            if __gameInfo.Murder.Name ~= Speaker.Name then return end
+            if CheckItem('Knife') == false then return end
+            
+            local Knife = GrabItem('Knife')
+            if not Knife then return end
+
+            Throw(Knife, GetNearest())
+        end,
+    })
+
+    local SheriffSection = CombatSection:Tab({
+        Title = "Sheriff",
+        Icon = "rbxassetid://130309412942747",
+        Selected = false,
+    })
+
+    SheriffSection:Keybind({
+        Title = "Manual Shoot Murder",
+        Value = "R",
+        Callback = function()
+            ShootMurder(true)
+        end
+    })
+
+    SheriffSection:Space()
+
+    SheriffSection:Toggle({
+        Title = "Silent Aim",
+        Type = "Toggle",
+        Value = false,
+        Callback = function(state)
+            if state then
+                __gameInfo.Connections.silentaim_conn = RunService.Stepped:Connect(function()
+                    ShootMurder(false)
+                end)
+            else
+                if __gameInfo.Connections.silentaim_conn then
+                    __gameInfo.Connections.silentaim_conn:Disconnect()
+		            __gameInfo.Connections.silentaim_conn = nil
+                end
+            end
+        end
+    })
+
+    SheriffSection:Keybind({
+        Title = "Manual Silent Aim",
+        Value = "E",
+        Callback = function()
+            ShootMurder(false)
+        end
+    })
+
+    local InnocentSection = CombatSection:Tab({
+        Title = "Innocent",
+        Icon = "rbxassetid://70434990945842",
+        Selected = false,
+    })
+
+    InnocentSection:Keybind({
+        Title = "Manual Grab Gun",
+        Value = "G",
+        Callback = function()
+            GrabGun()
+        end
+    })
+
+    InnocentSection:Toggle({
+        Title = "Auto Grab Gun",
+        Type = "Toggle",
+        Flag = "AutoGrabGun",
+        Value = false,
+        Callback = function(state)
+            if state then
+                __gameInfo.Connections.grabgun_conn = RunService.Stepped:Connect(function()
+                    GrabGun()
+                end)
+            else
+                if __gameInfo.Connections.grabgun_conn then
+                    __gameInfo.Connections.grabgun_conn:Disconnect()
+		            __gameInfo.Connections.grabgun_conn = nil
+                    GrabGun(true)
+                end
+            end
+        end
+    })
+end
+
+-- // VISUALS TAB // --
+do
+    local VisualsTab = Window:Tab({
+        Title = "Visuals",
+        Icon = "solar:eye" .. __gameInfo.IconsType,
+    })
+
+    local VisualsSection = VisualsTab:MultiSection({
+        Title = "Visuals",
+        Icon = "solar:clipboard-list" .. __gameInfo.IconsType,
+        Box = true,
+        BoxBorder = true,
+        Opened = true,
+    })
+
+    local MurdererSection = VisualsSection:Tab({
+        Title = "Murderer",
+        Icon = "rbxassetid://135973897250158",
+        Selected = true,
+    })
+
+    MurdererSection:Colorpicker({
+        Title = "Murder ESP Theme",
+        Flag = "M_Theme",
+        Default = Color3.fromRGB(255, 20, 20),
+        Callback = function(color) 
+            __gameInfo.Murder.Color = color
+        end
+    })
+
+    MurdererSection:Space()
+    MurdererSection:Divider()
+    MurdererSection:Space()
+
+    MurdererSection:Toggle({
+        Title = "Chams",
+        Type = "Toggle",
+        Flag = "M_Chams",
+        Value = false,
+        Callback = function(state)
+            __gameInfo.Murder.Highlight = state
+        end
+    })
+
+    MurdererSection:Toggle({
+        Title = "Tracers",
+        Type = "Toggle",
+        Flag = "M_Tracers",
+        Value = false,
+        Callback = function(state)
+            __gameInfo.Murder.Tracers = state
+        end
+    })
+
+    MurdererSection:Toggle({
+        Title = "Name ~ Distance",
+        Type = "Toggle",
+        Flag = "M_Names",
+        Value = false,
+        Callback = function(state)
+            __gameInfo.Murder.Names = state
+        end
+    })
+
+    local SheriffSection = VisualsSection:Tab({
+        Title = "Sheriff",
+        Icon = "rbxassetid://130309412942747",
+        Selected = false,
+    })
+
+    SheriffSection:Colorpicker({
+        Title = "Sheriff ESP Theme",
+        Flag = "S_Theme",
+        Default = Color3.fromRGB(20, 20, 255),
+        Callback = function(color) 
+            __gameInfo.Sheriff.Color = color
+        end
+    })
+
+    SheriffSection:Space()
+    SheriffSection:Divider()
+    SheriffSection:Space()
+
+    SheriffSection:Toggle({
+        Title = "Chams",
+        Type = "Toggle",
+        Flag = "S_Chams",
+        Value = false,
+        Callback = function(state)
+            __gameInfo.Sheriff.Highlight = state
+        end
+    })
+
+    SheriffSection:Toggle({
+        Title = "Tracers",
+        Type = "Toggle",
+        Flag = "S_Tracers",
+        Value = false,
+        Callback = function(state)
+            __gameInfo.Sheriff.Tracers = state
+        end
+    })
+
+    SheriffSection:Toggle({
+        Title = "Name ~ Distance",
+        Type = "Toggle",
+        Flag = "S_Names",
+        Value = false,
+        Callback = function(state)
+            __gameInfo.Sheriff.Names = state
+        end
+    })
+
+    local HeroSection = VisualsSection:Tab({
+        Title = "Hero",
+        Icon = "rbxassetid://129225410668668",
+        Selected = false,
+    })
+
+    HeroSection:Colorpicker({
+        Title = "Hero ESP Theme",
+        Flag = "H_Theme",
+        Default = Color3.fromRGB(255, 255, 20),
+        Callback = function(color) 
+            __gameInfo.Hero.Color = color
+        end
+    })
+
+    HeroSection:Space()
+    HeroSection:Divider()
+    HeroSection:Space()
+
+    HeroSection:Toggle({
+        Title = "Chams",
+        Type = "Toggle",
+        Flag = "H_Chams",
+        Value = false,
+        Callback = function(state)
+            __gameInfo.Hero.Highlight = state
+        end
+    })
+
+    HeroSection:Toggle({
+        Title = "Tracers",
+        Type = "Toggle",
+        Flag = "H_Tracers",
+        Value = false,
+        Callback = function(state)
+            __gameInfo.Hero.Tracers = state
+        end
+    })
+
+    HeroSection:Toggle({
+        Title = "Name ~ Distance",
+        Type = "Toggle",
+        Flag = "H_Names",
+        Value = false,
+        Callback = function(state)
+            __gameInfo.Hero.Names = state
+        end
+    })
+
+    local InnocentSection = VisualsSection:Tab({
+        Title = "Innocent",
+        Icon = "rbxassetid://70434990945842",
+        Selected = false,
+    })
+
+    InnocentSection:Colorpicker({
+        Title = "Innocent ESP Theme",
+        Flag = "I_Theme",
+        Default = Color3.fromRGB(0, 255, 0),
+        Callback = function(color) 
+            __gameInfo.Innocent.Color = color
+        end
+    })
+
+    InnocentSection:Space()
+    InnocentSection:Divider()
+    InnocentSection:Space()
+
+    InnocentSection:Toggle({
+        Title = "Chams",
+        Type = "Toggle",
+        Flag = "I_Chams",
+        Value = false,
+        Callback = function(state)
+            __gameInfo.Innocent.Highlight = state
+        end
+    })
+
+    InnocentSection:Toggle({
+        Title = "Tracers",
+        Type = "Toggle",
+        Flag = "I_Tracers",
+        Value = false,
+        Callback = function(state)
+            __gameInfo.Innocent.Tracers = state
+        end
+    })
+
+    InnocentSection:Toggle({
+        Title = "Innocent Names",
+        Type = "Toggle",
+        Flag = "I_Names",
+        Value = false,
+        Callback = function(state)
+            __gameInfo.Innocent.Names = state
+        end
+    })
+end
+
+-- // CHARACTER TAB // --
+do
+    local CharacterTab = Window:Tab({
+        Title = "Character",
+        Icon = "solar:user-circle" .. __gameInfo.IconsType,
+    })
+
+    local CharacterSection = CharacterTab:MultiSection({
+        Title = "Character",
+        Icon = "solar:clipboard-list" .. __gameInfo.IconsType,
+        Box = true,
+        BoxBorder = true,
+        Opened = true,
+    })
+
+    do
+        local MovementSection = CharacterSection:Tab({
+            Title = "Movement",
+            Icon = "solar:sort-horizontal" .. __gameInfo.IconsType,
+            Selected = true,
+        })
+
+        MovementSection:Toggle({
+            Title = "Enable WalkSpeed",
+            Type = "Toggle",
+            Flag = "WS",
+            Value = false,
+            Callback = function(state)
+                if state then
+                    __gameInfo.Connections.walkspeed_conn = RunService.Stepped:Connect(function()
+                        ChangeMod('ws', __gameInfo.Player.WalkSpeed)
+                    end)
+                else
+                    if __gameInfo.Connections.walkspeed_conn then
+                        __gameInfo.Connections.walkspeed_conn:Disconnect()
+                        __gameInfo.Connections.walkspeed_conn = nil
+                        ChangeMod('ws', 16)
+                    end
+                end
+            end
+        })
+
+        MovementSection:Slider({
+            Title = "WalkSpeed",
+            Step = 1,
+            Value = {
+                Min = 16,
+                Max = 120,
+                Default = 16,
+            },
+            Callback = function(value)
+                __gameInfo.Player.WalkSpeed = value
+            end
+        })
+
+        MovementSection:Space()
+
+        MovementSection:Toggle({
+            Title = "Enable JumpPower",
+            Type = "Toggle",
+            Flag = "JP",
+            Value = false,
+            Callback = function(state)
+                if state then
+                    __gameInfo.Connections.jumppower_conn = RunService.Stepped:Connect(function()
+                        ChangeMod('jp', __gameInfo.Player.JumpPower)
+                    end)
+                else
+                    if __gameInfo.Connections.jumppower_conn then
+                        __gameInfo.Connections.jumppower_conn:Disconnect()
+                        __gameInfo.Connections.jumppower_conn = nil
+                        ChangeMod('jp', 50)
+                    end
+                end
+            end
+        })
+
+        MovementSection:Slider({
+            Title = "JumpPower",
+            Step = 1,
+            Value = {
+                Min = 50,
+                Max = 350,
+                Default = 50,
+            },
+            Callback = function(value)
+                __gameInfo.Player.JumpPower = value
+            end
+        })
+    end
+
+    do
+        local ModificationsSection = CharacterSection:Tab({
+            Title = "Modifications",
+            Icon = "solar:pen" .. __gameInfo.IconsType,
+            Selected = false,
+        })
+
+        ModificationsSection:Toggle({
+            Title = "Anti-Fling",
+            Type = "Toggle",
+            Flag = "AntiFling",
+            Value = false,
+            Callback = function(state)
+                if state then
+                    __gameInfo.Connections.antifling_conn = RunService.Stepped:Connect(function()
+                        AntiFling()
+                    end)
+                else
+                    if __gameInfo.Connections.antifling_conn then
+                        __gameInfo.Connections.antifling_conn:Disconnect()
+                        __gameInfo.Connections.antifling_conn = nil
+                        AntiFling(true)
+                    end
+                end
+            end
+        })
+
+        ModificationsSection:Toggle({
+            Title = "Anti-AFK",
+            Type = "Toggle",
+            Flag = "AntiAFK",
+            Value = false,
+            Callback = function(state)
+                if state then
+                    antiafk_conn = Speaker.Idled:Connect(function()
+                        AntiAFK()
+                    end)
+                else
+                    if antiafk_conn then
+                        antiafk_conn:Disconnect()
+                        antiafk_conn = nil
+                        AntiAFK(true)
+                    end
+                end
+            end
+        })
+    end
+end
+
+-- // TELEPORT TAB // --
+do
+    local TeleportTab = Window:Tab({
+        Title = "Teleport",
+        Icon = "solar:map-point-wave" .. __gameInfo.IconsType,
+    })
+
+    local TeleportSection = TeleportTab:MultiSection({
+        Title = "Teleport",
+        Icon = "solar:clipboard-list" .. __gameInfo.IconsType,
+        Box = true,
+        BoxBorder = true,
+        Opened = true,
+    })
+
+    do
+        local WorldSection = TeleportSection:Tab({
+            Title = "Workspace",
+            Icon = "solar:compass-square" .. __gameInfo.IconsType,
+            Selected = true,
+        })
+
+        WorldSection:Button({
+            Title = "To Lobby",
+            Icon = "solar:streets" .. __gameInfo.IconsType,
+            Callback = function()
+                Teleport('lobby')
+            end
+        })
+
+        WorldSection:Button({
+            Title = "To Current Map",
+            Icon = "solar:map" .. __gameInfo.IconsType,
+            Callback = function()
+                Teleport('map')
+            end
+        })
+
+        WorldSection:Button({
+            Title = "To Map's Top",
+            Icon = "solar:square-alt-arrow-down" .. __gameInfo.IconsType,
+            Callback = function()
+                Teleport('top')
+            end
+        })
+    end
+
+    do
+        local PlayersSection = TeleportSection:Tab({
+            Title = "Players",
+            Icon = "solar:user-hands" .. __gameInfo.IconsType,
+            Selected = false,
+        })
+
+        PlayersSection:Button({
+            Title = "To Murderer",
+            Icon = "solar:bone" .. __gameInfo.IconsType,
+            Callback = function()
+                Teleport('murderer')
+            end
+        })
+
+        PlayersSection:Button({
+            Title = "To Sheriff",
+            Icon = "solar:moon" .. __gameInfo.IconsType,
+            Callback = function()
+                Teleport('sheriff')
+            end
+        })
+
+        PlayersSection:Space()
+
+        local Player = PlayersSection:Dropdown({
+            Title = "Player",
+            Values = {'Loading...'},
+            Value = nil,
+            Multi = false,
+            AllowNone = true,
+            Callback = function(option)
+                __gameInfo.Player.Teleport = option
+            end
+        })
+
+        table.insert(__gameInfo.Dropdowns, Player)
+        UpdateDropdowns()
+    end
+end
+
+-- // EMOTES TAB // --
+do
+    local EmotesTab = Window:Tab({
+        Title = "Emotes",
+        Icon = "solar:smile-square" .. __gameInfo.IconsType,
+    })
+
+    local EmotesSection = EmotesTab:MultiSection({
+        Title = "Emotes",
+        Icon = "solar:clipboard-list" .. __gameInfo.IconsType,
+        Box = true,
+        BoxBorder = true,
+        Opened = true,
+    })
+
+    do
+        local AllSection = EmotesSection:Tab({
+            Title = "All",
+            Icon = "solar:list-down-minimalistic" .. __gameInfo.IconsType,
+            Selected = true,
+        })
+
+        for __Emote, Emote in pairs(__gameInfo.AllEmotes) do
+            print(Emote:gsub("^%l", string.upper))
+            AllSection:Button({
+                Title = Emote:gsub("^%l", string.upper),
+                Icon = "solar:play" .. __gameInfo.IconsType,
+                Locked = false,
+                Callback = function()
+                    ReplicatedStorage.Remotes.Misc['PlayEmote']:Fire(Emote)
+                end
+            })
+        end
+    end
+
+    do
+        local AutoSection = EmotesSection:Tab({
+            Title = "Auto",
+            Icon = "solar:repeat" .. __gameInfo.IconsType,
+            Selected = false,
+        })
+
+        AutoSection:Dropdown({
+            Title = "Auto Play Emote",
+            Values = {'sit', 'ninja', 'dab', 'floss', 'zen', 'zombie', 'headless'},
+            Value = 'sit',
+            Flag = 'APE',
+            Callback = function(value) 
+                __gameInfo.Player.Emote = value
+            end
+        })
+
+        local Toggle = AutoSection:Toggle({
+            Title = "Enable Auto Emote" ,
+            Type = "Toggle",
+            Value = false,
+            Flag = 'EAE',
+            Callback = function(state)
+                if state then
+                    __gameInfo.Connections.autoemote_conn = RunService.Stepped:Connect(function()
+                        ReplicatedStorage.Remotes.Misc['PlayEmote']:Fire(__gameInfo.Player.Emote)
+                    end)
+                else
+                    if __gameInfo.Connections.autoemote_conn then
+                        __gameInfo.Connections.autoemote_conn:Disconnect()
+                        __gameInfo.Connections.autoemote_conn = nil
+                    end
+                end
+            end
+        })
+    end
+end
+
+-- // !SAVING SYSTEM! // --
+do
+    local Result, Message = getgenv().Configuration('load')
+
+    if Result then
+        getgenv().Notify('Success!', 'Your latest settings have been uploaded', 'solar:pin-bold-duotone', 2)
+    else
+        getgenv().Notify('Something went wrong...', Message or 'Unknown error', 'solar:file-remove-bold-duotone', 3)
+    end
+    
+    Players.PlayerRemoving:Connect(function()
+        getgenv().Configuration('save')
+    end)
+end
